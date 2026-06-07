@@ -1,0 +1,925 @@
+?<!DOCTYPE html><html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub 商业化变现热点监控台</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Outfit:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- 引入 Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- 引入 Marked.js 用于渲染 Markdown -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="styles.css?v=2.5">
+
+  <style>
+    #media-ops-drawer {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+      z-index: 9999; display: flex; justify-content: flex-end;
+      opacity: 1; transition: opacity 0.3s;
+    }
+    #media-ops-drawer.hidden {
+      opacity: 0; pointer-events: none;
+    }
+    #media-ops-drawer .drawer-content {
+      width: 50%; min-width: 600px; height: 100%;
+      background: hsl(var(--bg-card));
+      border-left: 1px solid rgba(255,255,255,0.1);
+      transform: translateX(0); transition: transform 0.3s;
+      display: flex; flex-direction: column;
+    }
+    #media-ops-drawer.hidden .drawer-content {
+      transform: translateX(100%);
+    }
+    #media-ops-drawer .drawer-header {
+      padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    #media-ops-drawer .drawer-body {
+      padding: 1.5rem; overflow-y: auto; flex-grow: 1;
+    }
+    #media-ops-drawer .drawer-body .operations-grid {
+      grid-template-columns: 1fr; /* Stack vertically in drawer */
+    }
+  </style>
+</head>
+<body>
+  <!-- 全局粒子背景/渐变暗流 -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <div class="app-container">
+    <!-- 左侧悬浮高透侧边栏 -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">
+          <i data-lucide="radio" class="glow-icon"></i>
+        </div>
+        <div class="brand-text">
+          <h2>GitHub Radar</h2>
+          <span>变现机会评估系统</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-page="hub">
+          <i data-lucide="radio"></i>
+          <span>💡 变现情报中枢</span>
+        </button>
+        <button class="nav-item" data-page="github">
+          <i data-lucide="github"></i>
+          <span>📊 榜单挖掘</span>
+        </button>
+        <button class="nav-item" data-page="settings">
+          <i data-lucide="sliders"></i>
+          <span>⚙️ 系统整合配置</span>
+        </button>
+        <button class="nav-item" data-page="xhs-data" id="nav-xhs-data">
+          <i data-lucide="bar-chart-2"></i>
+          <span>📊 爆款全网探测</span>
+        </button>
+        <button class="nav-item" data-page="wechat-data" id="nav-wechat-data">
+          <i data-lucide="message-circle"></i>
+          <span>📈 公众号大�?/span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="status-indicator">
+          <span class="pulse-dot"></span>
+          <span>系统守护进程运行�?/span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 右侧主内容区 -->
+    <main class="main-content">
+      <!-- 顶部控制�?-->
+      <header class="main-header">
+        <div class="header-left">
+          <h1 id="page-title">💡 变现情报中枢 (Hub)</h1>
+          <p id="page-subtitle">一站式发现信息差红利，智能评估变现潜力，并一键发�?/p>
+        </div>
+      </header>
+
+      <!-- 主要页面内容容器 -->
+      <section class="page-content">
+        
+        <!-- 页面二：热点发现�?(Explorer) -->
+        <div id="page-hub" class="subpage active">
+
+          <!-- 数据状态栏 -->
+          <div id="social-data-status" class="data-status-bar hidden">
+            <div class="status-bar-left">
+              <i data-lucide="clock" style="width:14px;height:14px;"></i>
+              <span id="social-last-update-text">数据更新�?..</span>
+            </div>
+            <div class="status-bar-right">
+              <span id="social-next-update-text"></span>
+              <span id="social-offline-badge" class="offline-badge hidden">⚠️ 离线模拟数据</span>
+            </div>
+          </div>
+
+          <!-- 顶部抓取与AI操作面板 -->
+          <div class="card social-action-card" style="margin-bottom: 1.5rem;">
+            <div class="card-header">
+              <h2>社媒热力雷达与比对中�?/h2>
+              <div style="display:flex;gap:0.75rem;align-items:center;">
+                <select id="social-history-select" class="select-input" style="width:auto;font-size:0.8rem;" title="查看历史报告">
+                  <option value="">📋 历史报告</option>
+                </select>
+                <button id="btn-social-fetch-now" class="btn btn-primary">
+                  <i data-lucide="refresh-cw"></i>
+                  <span>立即抓取�?AI 比对</span>
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <p class="op-section-desc">抓取 YouTube 技�?工具评测视频�?X (Twitter) 全球热门话题，利�?Gemini 深度比对 GitHub Trending 项目，量化热度评分，发现潜在爆款风向。每 6 小时自动更新�?/p>
+              <div id="social-progress" class="progress-panel hidden" style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 1rem;">
+                <div class="progress-steps" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                  <div class="step" id="social-step-crawl" style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                    <div class="step-dot" style="margin-top: 2px;"><i data-lucide="loader-2" class="spin-icon"></i></div>
+                    <div class="step-text">
+                      <h4 style="font-size: 0.85rem; font-weight: 600;">1. 多源数据抓取</h4>
+                      <p style="font-size: 0.75rem; opacity: 0.7; line-height: 1.2;">并发检�?YouTube 5关键�?+ X 趋势�?/p>
+                    </div>
+                  </div>
+                  <div class="step" id="social-step-gemini" style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                    <div class="step-dot" style="margin-top: 2px;"><i data-lucide="clock"></i></div>
+                    <div class="step-text">
+                      <h4 style="font-size: 0.85rem; font-weight: 600;">2. AI 量化评分</h4>
+                      <p style="font-size: 0.75rem; opacity: 0.7; line-height: 1.2;">Gemini 双维热度评分 + 趋势方向判断</p>
+                    </div>
+                  </div>
+                  <div class="step" id="social-step-render" style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                    <div class="step-dot" style="margin-top: 2px;"><i data-lucide="clock"></i></div>
+                    <div class="step-text">
+                      <h4 style="font-size: 0.85rem; font-weight: 600;">3. 可视化渲�?/h4>
+                      <p style="font-size: 0.75rem; opacity: 0.7; line-height: 1.2;">热度图表 + 强推卡片 + 完整分析报告</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 强推卡片区域 -->
+          <div id="social-top-picks" class="top-picks-section hidden">
+            <div class="section-title-row" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.8rem;">
+              <i data-lucide="zap" style="color:#f59e0b;width:18px;height:18px;"></i>
+              <h3 style="font-size:1rem;margin:0;">🔥 AI 强推变现选品</h3>
+              <span class="badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;">强推</span>
+            </div>
+            <div id="top-picks-cards" class="top-picks-grid"></div>
+          </div>
+
+          <!-- 热度对比图表 -->
+          <div id="social-chart-section" class="card hidden" style="margin-bottom: 1.5rem;">
+            <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+              <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                <i data-lucide="bar-chart-2" style="color: hsl(var(--primary));"></i>
+                <span>GitHub 热度 vs 海外社媒 vs 国内社媒 对比�?/span>
+              </h3>
+              <span class="badge glow-green">AI 评分</span>
+            </div>
+            <div class="card-body chart-container">
+              <canvas id="social-compare-chart"></canvas>
+            </div>
+          </div>
+
+          <!-- 双栏比对网格 -->
+          <div class="social-monitor-grid">
+            <!-- 左栏：社媒实时源�?-->
+            <div class="social-sources-column">
+              <div class="card" style="margin-bottom: 1.2rem;">
+                <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                  <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                    <i data-lucide="twitter" style="color: #1da1f2; fill: #1da1f2;"></i>
+                    <span>X (Twitter) 技术热门话�?/span>
+                  </h3>
+                  <span class="badge" style="background: rgba(29, 161, 242, 0.1); color: #1da1f2;">最新更�?/span>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <div id="x-trends-list" class="social-list">
+                    <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                  <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                    <i data-lucide="youtube" style="color: #ff0000; fill: #ff0000;"></i>
+                    <span>YouTube 热门技术视�?/span>
+                  </h3>
+                  <span class="badge" style="background: rgba(255, 0, 0, 0.1); color: #ff0000;">观看量排�?/span>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <div id="youtube-trends-list" class="social-list">
+                    <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bilibili 科技热点 -->
+              <div class="card">
+                <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                  <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                    <i data-lucide="tv" style="color: #00a1d6;"></i>
+                    <span>Bilibili 科技/开源热�?/span>
+                  </h3>
+                  <span class="badge" style="background: rgba(0, 161, 214, 0.1); color: #00a1d6;">国内综合</span>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <div id="bilibili-trends-list" class="social-list">
+                    <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- V2EX 开发者热�?-->
+              <div class="card">
+                <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                  <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                    <i data-lucide="message-square" style="color: #333344;"></i>
+                    <span>V2EX 开发者热�?/span>
+                  </h3>
+                  <span class="badge" style="background: rgba(255, 255, 255, 0.1); color: #ccc;">国内极客</span>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                  <div id="v2ex-trends-list" class="social-list">
+                    <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 右栏：AI 趋势比对与风向标报告 -->
+            <div class="social-analysis-column">
+              <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+                <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                  <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem;">
+                    <i data-lucide="brain-circuit" style="color: hsl(var(--primary));"></i>
+                    <span>AI 爆款风向标与比对报告</span>
+                  </h3>
+                  <span class="badge glow-green">Gemini 智能洞察</span>
+                </div>
+                <div class="card-body" style="flex-grow: 1; overflow-y: auto; padding: 1.2rem;">
+                  <div id="social-analysis-report-container" class="markdown-body">
+                    <div class="list-placeholder" style="padding: 4rem 2rem;">
+                      <i data-lucide="compass" style="width: 48px; height: 48px; margin-bottom: 1rem; color: hsl(var(--primary)); opacity: 0.8;"></i>
+                      <h3>社媒比对大盘已就�?/h3>
+                      <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.5rem; max-width: 400px; margin-left: auto; margin-right: auto;">点击顶部按钮，系统将启动免密数据爬虫，获�?X 平台前沿大事件与 YouTube 评测排行，融合本地高�?GitHub 列表，输出深度商业机会预言书�?/p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+        <!-- /page-hub 结束 -->
+
+        <!-- 页面：GitHub 榜单过滤与挖�?-->
+        <div id="page-github" class="subpage">
+
+          <!-- GitHub 数据过滤�?-->
+          <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 1.5rem;">
+            <div style="display: flex; gap: 0.5rem;">
+              <button id="btn-translate-all" class="btn btn-secondary" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); color: hsl(var(--text)); font-weight: 500; display: inline-flex; align-items: center; gap: 0.4rem;">
+                <i data-lucide="languages"></i>
+                <span>一键翻译项目简�?/span>
+              </button>
+              <button id="btn-fetch-now" class="btn btn-primary">
+                <i data-lucide="refresh-cw"></i>
+                <span>立即抓取 GitHub 热榜</span>
+              </button>
+            </div>
+          </div>
+          <!-- 检索过滤器 -->
+          <div class="filter-bar card">
+            <div class="search-box">
+              <i data-lucide="search"></i>
+              <input type="text" id="filter-search" placeholder="在海量热点项目中搜索关键字，�?SaaS, AI, alternative...">
+            </div>
+            
+            <div class="filters-row">
+              <div class="filter-group">
+                <label for="filter-category">技术类�?/label>
+                <select id="filter-category">
+                  <option value="">全部类别</option>
+                  <option value="frontend">前端技�?(Frontend)</option>
+                  <option value="backend">后端服务 (Backend)</option>
+                  <option value="devops">容器与运�?(DevOps)</option>
+                  <option value="data">数据与人工智�?(AI/Data)</option>
+                  <option value="tools">实用工具 (Tools)</option>
+                  <option value="mobile">移动与跨平台 (Mobile)</option>
+                  <option value="blockchain">区块链与 Web3</option>
+                  <option value="gaming">游戏开�?/option>
+                  <option value="other">其他</option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label for="filter-language">主要语言</label>
+                <select id="filter-language">
+                  <option value="">全部语言</option>
+                  <option value="JavaScript">JavaScript</option>
+                  <option value="TypeScript">TypeScript</option>
+                  <option value="Python">Python</option>
+                  <option value="Go">Go</option>
+                  <option value="Rust">Rust</option>
+                  <option value="Java">Java</option>
+                  <option value="C++">C++</option>
+                </select>
+              </div>
+
+
+
+              <div class="filter-group">
+                <label for="filter-star">重点监控</label>
+                <select id="filter-star">
+                  <option value="">全部</option>
+                  <option value="true">已收藏项�?/option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label for="filter-xhs-category">小红书定�?/label>
+                <select id="filter-xhs-category" style="min-width: 140px;">
+                  <option value="">全部</option>
+                  <option value="视觉反差极大的一键式本地工具">一键式本地工具</option>
+                  <option value="副业/效率开挂神�?>副业/效率开挂神�?/option>
+                  <option value="极简、高颜值的应用">极简、高颜值的应用</option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label for="filter-sort">排序规则</label>
+                <select id="filter-sort">
+                  <option value="fetched_at">最新捕�?(默认)</option>
+                  <option value="stars_today">🔥 今日增长暴涨�?/option>
+                  <option value="stars">�?历史总星标多�?/option>
+                  <option value="commercial_score">💎 AI 商业评分排行</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 仓库列表网格 -->
+          <div id="repos-grid" class="repos-grid">
+            <!-- 动态生成卡�?-->
+          </div>
+
+          <!-- 加载状�?& 空状�?-->
+          <div id="explorer-loading" class="loading-spinner hidden">
+            <span class="spinner"></span>
+            <p>正在拉取技术大潮，请稍�?..</p>
+          </div>
+          <div id="explorer-empty" class="empty-state hidden">
+            <i data-lucide="package-open"></i>
+            <p>没有找到符合当前过滤条件的仓库数�?/p>
+          </div>
+        </div>
+
+
+
+        <!-- 页面五：自媒体矩阵运营中�?(Operations Hub) -->
+        
+
+        <!-- 页面四：系统配置 (Settings) -->
+        <div id="page-settings" class="subpage">
+          <div class="settings-grid">
+            
+            <!-- 核心 API 凭证 -->
+            <div class="card">
+              <div class="card-header">
+                <h2>API 密钥凭证</h2>
+                <i data-lucide="key"></i>
+              </div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label for="set-gemini-key">Gemini API Key <span class="required">*</span></label>
+                  <input type="password" id="set-gemini-key" placeholder="�?Google AI Studio 申请�?API 密钥 (用于变现报告分析)">
+                  <span class="help-text">用于触发 AI 深度变现评估。如为空，将自动返回本地高质量模拟数据�?/span>
+                </div>
+                <div class="form-group">
+                  <label for="set-deepseek-key">DeepSeek API Key (可�?</label>
+                  <input type="password" id="set-deepseek-key" placeholder="�?DeepSeek 开放平台申请的 API 密钥 (用于 Gemini 额度超限时兜底文本生�?">
+                  <span class="help-text">当您�?Gemini 免费额度超限（触�?429 报错）时，系统将自动无缝切换�?DeepSeek 生成高质量文本及评估报告�?/span>
+                </div>
+                <div class="form-group">
+                  <label for="set-github-token">GitHub Token (推荐)</label>
+                  <input type="password" id="set-github-token" placeholder="您的 GitHub Personal Access Token (可�?">
+                  <span class="help-text">配置 Token 可避免频繁查询自定义仓库时触�?GitHub API 速率限制�?/span>
+                </div>
+                <div class="form-group">
+                  <label for="set-wechat-name">微信公众号名�?(一鱼两吃引流钩�?</label>
+                  <input type="text" id="set-wechat-name" placeholder="例如：GitHub 搞钱雷达 (留空默认使用：GitHub 搞钱雷达)">
+                  <span class="help-text">在生成自媒体运营文案时，将自动引流到此处配置的同名微信公众号�?/span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 系统备份与版本回�?-->
+            <div class="card">
+              <div class="card-header">
+                <h2>系统备份与版本回�?/h2>
+                <i data-lucide="database-backup" style="color: hsl(var(--primary));"></i>
+              </div>
+              <div class="card-body" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem; gap: 1rem;">
+                  <div>
+                    <h3 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 0.2rem;">应用与数据备�?/h3>
+                    <p style="font-size: 0.75rem; opacity: 0.7; line-height: 1.3;">备份包含：核心源�?(src、public)、配置文�?(.env) �?SQLite 数据库。不包含临时物理包�?/p>
+                  </div>
+                  <button id="btn-create-backup" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.5rem 1rem; height: auto; flex-shrink: 0;">
+                    <i data-lucide="plus-circle" style="width: 14px; height: 14px;"></i>
+                    <span>创建当前备份</span>
+                  </button>
+                </div>
+                
+                <!-- 备份列表容器 -->
+                <div>
+                  <h3 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
+                    <i data-lucide="archive" style="width: 16px; height: 16px; color: hsl(var(--secondary));"></i>
+                    <span>历史备份版本</span>
+                  </h3>
+                  
+                  <div id="backup-list-empty" class="text-center" style="padding: 2rem 0; opacity: 0.5; border: 1px dashed rgba(255,255,255,0.1); border-radius: var(--radius-md);">
+                    <i data-lucide="folder-archive" style="width: 32px; height: 32px; margin-bottom: 0.5rem; display: block; margin-left: auto; margin-right: auto;"></i>
+                    <span style="font-size: 0.8rem;">暂无历史备份记录</span>
+                  </div>
+                  
+                  <div id="backup-list-wrapper" class="hidden" style="max-height: 230px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem; padding-right: 0.2rem;">
+                    <!-- 动态渲染备份条�?-->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+
+          <div class="settings-action-row">
+            <button id="btn-save-settings" class="btn btn-primary btn-large">
+              <i data-lucide="check-circle-2"></i>
+              <span>保存配置并热重启生效</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 页面六：社媒热点监控 (Social Monitor) -->
+        
+        <!-- 页面七：爆款赛道全网探测 (Standalone XHS Data) -->
+        <div id="page-xhs-data" class="subpage">
+          <div class="card" style="width: 100%; max-width: 1000px; margin: 2rem auto; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+            <div class="card-header" style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--border-color);">
+              <h2 style="font-size: 1.4rem; margin: 0;">📊 小红书爆款赛道大盘真实数�?/h2>
+              <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0.5rem 0 0 0;">利用红狐 API 穿透小红书数据壁垒，实时检索全网高转化爆款笔记�?/p>
+            </div>
+            <div class="card-body" style="padding: 2rem;">
+              <div class="op-form-group">
+                <label for="xhs-keyword-input" style="font-size: 1.1rem; margin-bottom: 0.8rem;">精准赛道检�?/label>
+                <div style="display: flex; gap: 0.8rem; width: 100%;">
+                  <input type="text" id="xhs-keyword-input" placeholder="输入赛道泛词，如：AI工具、自媒体运营、程序员副业..." style="flex: 1; padding: 0.8rem 1rem; font-size: 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary);" />
+                  <button class="btn btn-primary" id="btn-search-xhs" style="white-space: nowrap; padding: 0 2rem; font-size: 1rem; border-radius: 8px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border: none; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);">
+                    <i data-lucide="search"></i> 探测全网爆款
+                  </button>
+                </div>
+              </div>
+              <div id="xhs-loading-skeleton" class="hidden" style="margin-top: 1rem; text-align: center; color: #9ca3af; padding: 4rem 0;">
+                <i data-lucide="loader" class="spin" style="margin-bottom: 1rem; display: inline-block; width: 32px; height: 32px;"></i>
+                <p style="font-size: 1.1rem;">正在拉取小红书全网大盘数据，请稍�?..</p>
+              </div>
+              <div id="xhs-results-container" style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; padding-right: 8px; max-height: calc(100vh - 350px);">
+                <!-- 结果卡片将渲染在这里 -->
+                <div style="text-align: center; color: #6b7280; padding: 4rem 0; font-size: 1.1rem; border: 1px dashed var(--border-color); border-radius: 8px; background: rgba(0,0,0,0.1);">
+                  <i data-lucide="bar-chart-2" style="width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.5;"></i><br/>
+                  💡 在上方输入泛关键词检索全网爆款（系统仅收录互动数 1000+ 的超级爆款）�?                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 页面八：公众号大盘探�?(Standalone WeChat Data) -->
+        <div id="page-wechat-data" class="subpage">
+          <div class="card" style="width: 100%; max-width: 1100px; margin: 2rem auto; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+            <div class="card-header" style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h2 style="font-size: 1.4rem; margin: 0;">📈 微信公众号大盘真实数�?/h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0.5rem 0 0 0;">利用红狐 API 双引擎探测公众号爆款流量密码�?/p>
+              </div>
+              <div class="op-preview-tabs" style="border: 1px solid var(--border-color); padding: 0.2rem; border-radius: 8px;">
+                <button class="op-preview-tab active" data-wxtab="search" id="tab-wx-search" style="padding: 0.5rem 1rem;">
+                  <i data-lucide="search"></i> 赛道爆款探测
+                </button>
+                <button class="op-preview-tab" data-wxtab="hot10w" id="tab-wx-hot10w" style="padding: 0.5rem 1rem;">
+                  <i data-lucide="award"></i> 10w+ 天花板榜�?                </button>
+              </div>
+            </div>
+            
+            <div class="card-body" style="padding: 2rem;">
+              <!-- 面板 A：赛道搜�?-->
+              <div id="wx-panel-search">
+                <div class="op-form-group">
+                  <label for="wx-keyword-input" style="font-size: 1.1rem; margin-bottom: 0.8rem;">精准赛道检�?(�?天自动回�?</label>
+                  <div style="display: flex; gap: 0.8rem; width: 100%;">
+                    <input type="text" id="wx-keyword-input" placeholder="输入赛道泛词，如：AI工具、自媒体运营、程序员副业..." style="flex: 1; padding: 0.8rem 1rem; font-size: 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary);" />
+                    <button class="btn btn-primary" id="btn-search-wx" style="white-space: nowrap; padding: 0 2rem; font-size: 1rem; border-radius: 8px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                      <i data-lucide="search"></i> 探测近期爆款
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 面板 B�?0w+ 分类榜单 -->
+              <div id="wx-panel-hot10w" class="hidden">
+                <div class="op-form-group">
+                  <label for="wx-category-select" style="font-size: 1.1rem; margin-bottom: 0.8rem;">选择行业分类查看 10w+ 神级爆文 (�?天自动回�?</label>
+                  <div style="display: flex; gap: 0.8rem; width: 100%;">
+                    <select id="wx-category-select" style="flex: 1; padding: 0.8rem 1rem; font-size: 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary);">
+                      <option value="总排�?>总排�?/option>
+                      <option value="科技数码">科技数码</option>
+                      <option value="职场发展">职场发展</option>
+                      <option value="创投商业">创投商业</option>
+                      <option value="房产楼市">房产楼市</option>
+                      <option value="教育考试">教育考试</option>
+                      <option value="健康养生">健康养生</option>
+                      <option value="民生资讯">民生资讯</option>
+                      <option value="知识百科">知识百科</option>
+                      <option value="财富理财">财富理财</option>
+                      <option value="搞笑幽默">搞笑幽默</option>
+                      <option value="情感心理">情感心理</option>
+                    </select>
+                    <button class="btn btn-primary" id="btn-fetch-wx-hot10w" style="white-space: nowrap; padding: 0 2rem; font-size: 1rem; border-radius: 8px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: none; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);">
+                      <i data-lucide="award"></i> 拉取 10w+ 榜单
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="wx-loading-skeleton" class="hidden" style="margin-top: 1rem; text-align: center; color: #9ca3af; padding: 4rem 0;">
+                <i data-lucide="loader" class="spin" style="margin-bottom: 1rem; display: inline-block; width: 32px; height: 32px;"></i>
+                <p style="font-size: 1.1rem;">正在穿透微信流量池抓取数据，请稍�?..</p>
+              </div>
+              
+              <div id="wx-results-container" style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; padding-right: 8px; max-height: calc(100vh - 350px);">
+                <!-- 结果卡片将渲染在这里 -->
+                <div style="text-align: center; color: #6b7280; padding: 4rem 0; font-size: 1.1rem; border: 1px dashed var(--border-color); border-radius: 8px; background: rgba(0,0,0,0.1);">
+                  <i data-lucide="layout-dashboard" style="width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.5;"></i><br/>
+                  💡 请在上方发起检�?�?br/>
+                  <span style="font-size: 0.9rem; margin-top: 0.5rem; display: inline-block;">(默认拉取�?天数据，若不�?0条将自动回溯�?0�?</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- 浮动滑入原始说明书抽�?(README Drawer) -->
+  <div id="readme-drawer-overlay" class="drawer-overlay hidden">
+    <div class="detail-drawer">
+      <button class="drawer-close-btn" id="btn-close-readme-drawer">
+        <i data-lucide="x"></i>
+      </button>
+
+      <div class="drawer-content">
+        <!-- 头部项目元数�?-->
+        <div class="drawer-header-meta">
+          <div class="drawer-title-row">
+            <h2 id="readme-drawer-repo-name">owner/repo</h2>
+            <span class="badge glow-green">原始说明书对�?/span>
+          </div>
+          <p class="text-muted">请先阅览真实的说明书（README），确认没有幻觉功能后再去生成营销文案�?/p>
+        </div>
+
+        <!-- 分割�?-->
+        <hr class="drawer-divider">
+
+        <!-- 详细说明书主�?-->
+        <div class="drawer-body">
+          <div id="readme-drawer-loading" class="loading-spinner hidden">
+            <span class="spinner"></span>
+            <p>正在�?GitHub 极速抓取原始说明书...</p>
+          </div>
+          
+          <div id="readme-content-body" class="markdown-body">
+            <!-- 渲染原始 README -->
+          </div>
+        </div>
+
+        <!-- 底部操作�?-->
+        <div class="drawer-footer">
+          <button class="btn btn-primary" id="btn-readme-drawer-proceed" style="width: 100%;">
+            <i data-lucide="wand-2"></i>
+            <span>我已阅览真实功能，下一步：生成文案</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 浮动滑入详情抽屉 (Slide Drawer) - 用于以最高级�?Markdown 排版渲染 AI 变现评估报告 -->
+  <div id="detail-drawer-overlay" class="drawer-overlay hidden">
+    <div class="detail-drawer">
+      <button class="drawer-close-btn" id="btn-close-drawer">
+        <i data-lucide="x"></i>
+      </button>
+
+      <div class="drawer-content">
+        <!-- 头部项目元数�?-->
+        <div class="drawer-header-meta">
+          <div class="drawer-title-row">
+            <h2 id="drawer-repo-name">owner/repo</h2>
+            <button class="btn-fav" id="btn-drawer-fav" title="加入重点监控">
+              <i data-lucide="star"></i>
+            </button>
+          </div>
+          <p id="drawer-repo-desc" class="text-muted">加载�?..</p>
+          <div class="drawer-meta-badges">
+            <span id="drawer-repo-lang" class="badge">TypeScript</span>
+            <span id="drawer-repo-category" class="badge bg-purple">SaaS</span>
+            <span id="drawer-repo-stars" class="badge-icon"><i data-lucide="star"></i> <span>0</span></span>
+            <span id="drawer-repo-forks" class="badge-icon"><i data-lucide="git-fork"></i> <span>0</span></span>
+          </div>
+        </div>
+
+
+
+        <div class="drawer-body">
+          <!-- 一键打包助手区�?-->
+          <hr class="drawer-divider" id="package-kit-divider" style="display:none">
+          <div id="drawer-package-kit" style="display:none">
+          <div class="package-kit-header">
+            <div class="package-kit-title">
+              <i data-lucide="package" class="glow-icon"></i>
+              <h3>一键打包助�?/h3>
+            </div>
+            <button id="btn-generate-package-kit" class="btn-action btn-package">
+              <i data-lucide="wand-2"></i> 生成打包套件
+            </button>
+          </div>
+          <div id="package-kit-loading" class="hidden">
+            <div class="loading-spinner"></div>
+            <p>正在分析项目结构并生成打包方�?..</p>
+          </div>
+          <div id="package-kit-result" class="hidden"></div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 吐司通知 (Toast Notification) -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- 页面渲染逻辑 -->
+  <script src="app.js?v=2.0"></script>
+
+
+
+  <!-- 侧边抽屉/弹窗：自媒体运营中心 -->
+  <div id="media-ops-drawer" class="drawer-overlay hidden">
+    <div class="drawer-content">
+      <div class="drawer-header">
+        <h2>🚀 一键发文工作台</h2>
+        <button id="btn-close-media-ops" class="btn btn-icon"><i data-lucide="x"></i></button>
+      </div>
+      <div class="drawer-body">
+        
+          <div class="operations-grid">
+            
+            <!-- 左侧控制面板 -->
+            <aside class="operations-sidebar">
+              
+              <!-- 步骤一：仓库项目筛�?-->
+              <div class="card op-card">
+                <div class="card-header">
+                  <h2>1. 选择变现热点项目</h2>
+                  <i data-lucide="layers" class="text-secondary"></i>
+                </div>
+                <div class="card-body">
+                  <p class="op-section-desc">选择一个或多个重点监控的项目以生成运营文案。支持多选一键生成公众号聚合周报�?/p>
+                  
+                  <div class="op-search-box">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="op-repo-search" placeholder="检索星�?/ 已评估项�?..">
+                  </div>
+
+                  <div class="op-filter-tabs">
+                    <button class="op-filter-pill active" id="op-filter-starred">
+                      <i data-lucide="star"></i>
+                      <span>已收藏监�?/span>
+                    </button>
+                    <button class="op-filter-pill" id="op-filter-all">
+                      <i data-lucide="database"></i>
+                      <span>全部高星热点</span>
+                    </button>
+                  </div>
+
+                  <!-- 仓库多选列�?-->
+                  <div class="op-repos-container" id="op-repos-list">
+                    <!-- JS 动态注�?-->
+                    <div class="list-placeholder">
+                      <p>正在读取适合变现的重点热点项�?..</p>
+                    </div>
+                  </div>
+
+                  <!-- 选择数量提示状�?-->
+                  <div class="op-selection-status" id="op-selection-status">
+                    <span>已选择 <strong id="op-selected-count">0</strong> 个项�?/span>
+                    <button class="btn-clear-selection hidden" id="op-btn-clear-sel">清除</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 步骤二：参数深度定制 -->
+              <div class="card op-card" style="margin-top: 1.2rem;">
+                <div class="card-header">
+                  <h2>2. 润色与引流配�?/h2>
+                  <i data-lucide="sparkles" class="text-primary"></i>
+                </div>
+                <div class="card-body">
+                  
+                  <!-- 附加个性化要求 -->
+                  <div class="op-form-group">
+                    <label for="op-custom-prompt">附加个性化要求 (可�?</label>
+                    <textarea id="op-custom-prompt" rows="2" placeholder="例如：重点强调它的某某功能，或者指定给某某行业的人�?.."></textarea>
+                  </div>
+
+                  <!-- 自定义引�?CTA -->
+                  <div class="op-form-group">
+                    <label for="op-cta-input">末尾引流话术 (CTA)</label>
+                    <textarea id="op-cta-input" rows="2" placeholder="配置引流文案。例如：后台回复【教程】领取一键托管部署包；或者微信：xxx 咨询变现合作�?></textarea>
+                  </div>
+
+                  <!-- 两步走工作流按钮�?-->
+                  <div class="op-workflow-actions" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.8rem;">
+                    <button id="btn-fetch-readme" class="btn btn-secondary btn-large w-full" style="width: 100%; font-weight: 600; font-size: 0.95rem; justify-content: center;">
+                      <i data-lucide="book-open"></i>
+                      <span>第一步：先提取并查看原项目说明书</span>
+                    </button>
+                    
+                    <button id="btn-generate-operations" class="btn btn-secondary btn-large w-full" style="width: 100%; font-weight: 600; font-size: 0.95rem; justify-content: center;">
+                      <i data-lucide="wand-2"></i>
+                      <span>第二步：基于原说明书生成智能文案</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </aside>
+
+            <!-- 右侧高保真预览展�?-->
+            <main class="operations-preview-container">
+              
+              <!-- 平台预览切换 Tab -->
+              <div class="op-preview-tabs">
+                <button class="op-preview-tab active" data-platform="xiaohongshu" id="tab-preview-red">
+                  <i data-lucide="smartphone"></i>
+                  <span>小红书手机预�?/span>
+                </button>
+                <button class="op-preview-tab" data-platform="wechat" id="tab-preview-wechat">
+                  <i data-lucide="mail-open"></i>
+                  <span>微信公众号预�?/span>
+                </button>
+                <button class="op-preview-tab" data-platform="image-gen" id="tab-preview-image">
+                  <i data-lucide="images"></i>
+                  <span>获取生图提示�?/span>
+                </button>
+              </div>
+
+              <!-- 预览面板区域 -->
+              <div class="op-preview-panel card">
+                
+                <!-- 骨架加载/空状�?-->
+                <div class="list-placeholder" id="op-preview-placeholder">
+                  <i data-lucide="megaphone" style="width: 48px; height: 48px; stroke-width: 1.2; color: hsl(var(--primary)); opacity: 0.8;"></i>
+                  <h3>自媒体创作者工坊就�?/h3>
+                  <p style="max-width: 400px; font-size: 0.82rem;">在左侧选择您需要推广的 GitHub 开源项目，并调整风格参数，AI 爆款大师将实时为您渲染带有高保真预览的宣发文本�?/p>
+                </div>
+
+                <div class="loading-spinner hidden" id="op-preview-loading">
+                  <span class="spinner"></span>
+                  <p>AI 爆款文案润色大师正在深度分析排版�?..</p>
+                </div>
+
+                <!-- 结果输出 & 预览展示 -->
+                <div class="op-results-wrapper hidden" id="op-results-wrapper">
+                  
+                  <!-- 小红书真机预�?(仅文�? -->
+                  <div class="preview-mode-viewport" id="viewport-xiaohongshu">
+                    
+                    <!-- 右侧文案展示面板 -->
+                    <div class="xhs-text-panel">
+                      <div class="xhs-text-panel-header">
+                        <h3><i data-lucide="file-text" style="color: hsl(var(--primary)); width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 0.4rem;"></i>自媒体爆款宣发文�?/h3>
+                        <span class="badge glow-green">AI 已润�?/span>
+                      </div>
+                      <div class="xhs-text-panel-body" id="xhs-text-panel-body">
+                        <!-- 填充生成内容 -->
+                      </div>
+                    </div>
+                  </div> <!-- Closes #viewport-xiaohongshu -->
+
+                  <!-- 微信公众号文章预�?-->
+                  <div class="preview-mode-viewport hidden" id="viewport-wechat">
+                    <div class="wechat-mockup">
+                      <!-- 模拟公众号标题栏 -->
+                      <div class="wechat-browser-bar">
+                        <div class="wechat-dot red"></div>
+                        <div class="wechat-dot yellow"></div>
+                        <div class="wechat-dot green"></div>
+                        <span class="wechat-browser-title">微信内置浏览�?/span>
+                      </div>
+                      
+                      <!-- 文章主体 -->
+                      <div class="wechat-article-container">
+                        <div class="wechat-article-header">
+                          <h1 id="wechat-mockup-article-title">【搞钱周报】本周最值得关注的开源变现黑马！</h1>
+                          <div class="wechat-meta-row">
+                            <span class="wechat-author">GitHub 搞钱雷达</span>
+                            <span class="wechat-date">今天</span>
+                          </div>
+                        </div>
+
+                        <!-- 微信富文本渲染容�?-->
+                        <div class="wechat-article-body" id="wechat-rendered-body">
+                          <!-- 填充微信生成�?HTML / Markdown 格式推文 -->
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 生图提示词工作台 -->
+                  <div class="preview-mode-viewport hidden" id="viewport-image-gen" style="flex-direction: column; gap: 1rem; width: 100%;">
+                    <div class="card" style="width: 100%;">
+                      <div class="card-header">
+                        <h2>生图提示词获取站</h2>
+                      </div>
+                      <div class="card-body">
+                        <div class="op-form-group">
+                          <label for="img-prompt-input" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>高保真生图提示词</span>
+                            <span class="badge" id="btn-auto-prompt" style="cursor: pointer; background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3);">�?智能提取神级描述�?/span>
+                          </label>
+                          <textarea id="img-prompt-input" rows="18" placeholder="点击上方按钮，AI 将为您生�?6 段（小红�?�?+ 公众�?张）包含高密度排版文字信息的强指令描述词，可直接复制到您�?Gemini Pro 等生图平�?.."></textarea>
+                        </div>
+                        <div class="op-form-group" style="margin-top: 1.5rem;">
+                           <div style="background: rgba(16, 185, 129, 0.1); padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.9rem; color: #10b981; margin-bottom: 1rem; line-height: 1.5;">
+                             <i data-lucide="info" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i>
+                             已为您注入“高密度、带排版文字信息”的强指令限定。请一键复制以上提示词，直接前往您的 <b>Gemini Pro</b> �?Midjourney 会员端粘贴，即可获得高质感引流图片�?                           </div>
+                        </div>
+                        <button class="btn btn-primary w-full" id="btn-copy-img-prompt" style="width: 100%; justify-content: center; margin-top: 0.5rem; background-color: #10b981; border-color: #10b981; font-weight: 600;">
+                          <i data-lucide="copy"></i>
+                          <span>一键复制生图提示词</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+
+
+                </div>
+
+                <!-- 复制动作操作页脚 -->
+                <div class="op-action-footer hidden" id="op-action-footer">
+                  <div class="op-footer-info">
+                    <i data-lucide="info" class="text-secondary"></i>
+                    <span>文案已就绪，推荐使用【复制富文本】直接粘贴以无损保留 Emoji 和格式！</span>
+                  </div>
+                  <div class="op-footer-buttons">
+                    <button class="btn btn-secondary" id="btn-copy-raw-text">
+                      <i data-lucide="copy"></i>
+                      <span>复制纯文�?/span>
+                    </button>
+                    <button class="btn btn-secondary hidden" id="btn-download-poster">
+                      <i data-lucide="image-down" class="text-primary"></i>
+                      <span>🎨 导出高清配图</span>
+                    </button>
+                    <button class="btn btn-primary" id="btn-copy-formatted-html">
+                      <i data-lucide="clipboard-signature"></i>
+                      <span>复制公众号富文本 (带格�?</span>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
+            </main>
+
+          </div>
+        
+      </div>
+    </div>
+  </div>
+</body></html>
