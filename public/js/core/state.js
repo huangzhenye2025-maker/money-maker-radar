@@ -5,7 +5,11 @@
     stats: {},
     currentSelectedRepo: null,
     charts: {},
-    silentTranslateTriggered: false
+    silentTranslateTriggered: false,
+    activeOpPlatform: 'xiaohongshu',
+    generatedCopy: '',
+    allOpReposPool: [],
+    opFilterStarred: true
   };
 
   // 初始化 Lucide 矢量图标

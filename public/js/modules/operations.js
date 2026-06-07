@@ -36,12 +36,7 @@
     });
   }
 
-  navItems.forEach(item => {
-    item.addEventListener('click', () => {
-      const pageId = item.getAttribute('data-page');
-      switchPage(pageId);
-    });
-  });
+
 
   // ==================== 小红书大盘真实数据查询 ====================
   if (btnSearchXhs) {

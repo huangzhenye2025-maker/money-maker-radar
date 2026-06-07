@@ -85,4 +85,11 @@
 
   // ==================== 初始化启动加载 ====================
   // 默认加载变现情报中枢（触发全量加载）
+  navItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const pageId = item.getAttribute('data-page');
+      switchPage(pageId);
+    });
+  });
+
   switchPage('hub');

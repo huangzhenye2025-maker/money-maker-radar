@@ -279,10 +279,10 @@
   state.selectedOpRepos = [];
   state.opTone = 'hype';
   state.opAudience = 'programmer';
-  state.activeOpPlatform = 'xiaohongshu';
-  state.generatedCopy = '';
-  state.allOpReposPool = [];
-  state.opFilterStarred = true;
+  
+  
+  
+  
 
   // 获取页面 DOM 元素
   const opRepoSearch = document.getElementById('op-repo-search');
