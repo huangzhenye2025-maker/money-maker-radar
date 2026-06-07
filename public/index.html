@@ -289,9 +289,14 @@
 
           <!-- 检索过滤器 -->
           <div class="filter-bar card">
-            <div class="search-box">
-              <i data-lucide="search"></i>
-              <input type="text" id="filter-search" placeholder="在海量热点项目中搜索关键字，如 SaaS, AI, alternative...">
+            <div class="search-box" style="display: flex; gap: 0.8rem; align-items: center; border: none; padding: 0; background: transparent;">
+              <div style="flex: 1; display: flex; align-items: center; background: var(--bg-primary); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.8rem 1.2rem;">
+                <i data-lucide="search"></i>
+                <input type="text" id="filter-search" placeholder="在海量热点项目中搜索关键字，如 SaaS, AI, alternative..." style="flex: 1; border: none; background: transparent; outline: none; margin-left: 0.5rem; color: var(--text-primary);">
+              </div>
+              <button class="btn btn-primary" id="btn-global-search" style="padding: 0.8rem 1.5rem; height: 100%; display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="globe"></i> 全网搜索
+              </button>
             </div>
 
             <div class="filters-row">

@@ -15,6 +15,7 @@ const Database = require('./storage/database');
 const PushService = require('./push/pushService');
 const aiAnalyst = require('./classify/aiAnalyst');
 
+const GitHubTrending = require('./fetch/githubTrending');
 const SocialTrending = require('./fetch/socialTrending');
 const socialTrending = new SocialTrending();
 const scheduler = require('./utils/scheduler');
@@ -84,6 +85,35 @@ async function initializeSystem() {
 }
 
 // ==================== REST API 路由 ====================
+
+// 0. 全网检索 GitHub 项目并入库
+app.post('/api/github/search', async (req, res) => {
+  try {
+    const { query } = req.body;
+    if (!query) return res.status(400).json({ success: false, message: 'Missing query' });
+
+    const github = new GitHubTrending();
+    // 搜索全网，取前 10 条，由于是全网搜索可能包含任何语言，language 留空，stars倒序
+    const repos = await github.fetchFromSearch(query, 'stars', 'desc', 10);
+    
+    if (!repos || repos.length === 0) {
+      return res.json({ success: false, message: '未能在全网检索到相关项目' });
+    }
+
+    // 存入数据库
+    for (let repo of repos) {
+      // 避免 undefined 导致 DB 插入失败
+      repo.category = 'other';
+      repo.starsToday = 'N/A';
+      await db.insertRepository(repo);
+    }
+
+    res.json({ success: true, message: '全网检索完成并已入库', data: repos });
+  } catch (err) {
+    console.error('全网检索失败:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 
 // 1. 获取仓库列表（支持高级检索与筛选）
 app.get('/api/repositories', async (req, res) => {

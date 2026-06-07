@@ -12,7 +12,51 @@
 
   // 防画检索
   let searchTimeout = null;
+
+  const btnGlobalSearch = document.getElementById('btn-global-search');
+  if (btnGlobalSearch) {
+    btnGlobalSearch.addEventListener('click', async () => {
+      const query = filterSearch.value.trim();
+      if (!query) {
+        showToast('请输入要全网搜索的项目名称或关键字', 'error');
+        return;
+      }
+      
+      const originalHtml = btnGlobalSearch.innerHTML;
+      btnGlobalSearch.innerHTML = '<i data-lucide="loader-2" class="spin"></i> 检索中...';
+      btnGlobalSearch.disabled = true;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch('/api/github/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query })
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          showToast('全网检索完成，已自动收录入库！', 'success');
+          // 刷新本地列表
+          filterCategory.value = '';
+          filterLanguage.value = '';
+          filterSort.value = 'fetched_at'; // 确保按最新排序
+          loadExplorerData();
+        } else {
+          showToast(result.message || '全网检索失败', 'error');
+        }
+      } catch (err) {
+        showToast('请求异常: ' + err.message, 'error');
+      } finally {
+        btnGlobalSearch.innerHTML = originalHtml;
+        btnGlobalSearch.disabled = false;
+        lucide.createIcons();
+      }
+    });
+  }
+
   filterSearch.addEventListener('input', () => {
+
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => {
       loadExplorerData();
