@@ -884,6 +884,20 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- 页面渲染逻辑 -->
-  <script src="app.js?v=2.0"></script>
+  
+  <!-- Core Logic -->
+  <script src="js/core/state.js"></script>
+  <script src="js/core/utils.js"></script>
+  
+  <!-- Modules -->
+  <script src="js/modules/hub.js"></script>
+  <script src="js/modules/github.js"></script>
+  <script src="js/modules/operations.js"></script>
+  <script src="js/modules/packageKit.js"></script>
+  <script src="js/modules/settings.js"></script>
+
+  <!-- Router (loads last to init) -->
+  <script src="js/core/router.js"></script>
+
 </body>
 </html>
