@@ -1664,8 +1664,8 @@
     
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #07c160; font-weight: 700;">$1</strong>');
     
-    // 微信段落及换行美化
-    html = html.replace(/\n\n/g, '<p style="margin: 0.8rem 0; line-height: 1.65; color: #3f3f3f;"></p>');
+    // 微信段落及换行美化 (修复段落间距过大问题)
+    html = html.replace(/\n\n/g, '<br><br>');
     html = html.replace(/\n/g, '<br>');
     
     // 将 Markdown 表格解析为极其精美的微信表格样式 (微信编辑器可无损直接复制！)
