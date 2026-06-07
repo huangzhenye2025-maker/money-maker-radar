@@ -700,7 +700,7 @@
 
         <!-- 页面六：系统配置 (Settings) -->
         <div id="page-settings" class="subpage">
-          <div class="settings-grid">
+          <div class="settings-grid" style="display: grid; grid-template-columns: 1fr; max-width: 800px; margin: 0 auto; gap: 1.5rem;">
 
             <!-- 核心 API 凭证 -->
             <div class="card">
@@ -732,42 +732,7 @@
               </div>
             </div>
 
-            <!-- 系统备份与版本回滚 -->
-            <div class="card">
-              <div class="card-header">
-                <h2>系统备份与版本回滚</h2>
-                <i data-lucide="database-backup" style="color: hsl(var(--primary));"></i>
-              </div>
-              <div class="card-body" style="display: flex; flex-direction: column; gap: 1rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem; gap: 1rem;">
-                  <div>
-                    <h3 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 0.2rem;">应用与数据备份</h3>
-                    <p style="font-size: 0.75rem; opacity: 0.7; line-height: 1.3;">备份包含：核心源码 (src、public)、配置文件 (.env) 及 SQLite 数据库。不包含临时物理包。</p>
-                  </div>
-                  <button id="btn-create-backup" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.5rem 1rem; height: auto; flex-shrink: 0;">
-                    <i data-lucide="plus-circle" style="width: 14px; height: 14px;"></i>
-                    <span>创建当前备份</span>
-                  </button>
-                </div>
 
-                <!-- 备份列表容器 -->
-                <div>
-                  <h3 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
-                    <i data-lucide="archive" style="width: 16px; height: 16px; color: hsl(var(--secondary));"></i>
-                    <span>历史备份版本</span>
-                  </h3>
-
-                  <div id="backup-list-empty" class="text-center" style="padding: 2rem 0; opacity: 0.5; border: 1px dashed rgba(255,255,255,0.1); border-radius: var(--radius-md);">
-                    <i data-lucide="folder-archive" style="width: 32px; height: 32px; margin-bottom: 0.5rem; display: block; margin-left: auto; margin-right: auto;"></i>
-                    <span style="font-size: 0.8rem;">暂无历史备份记录</span>
-                  </div>
-
-                  <div id="backup-list-wrapper" class="hidden" style="max-height: 230px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem; padding-right: 0.2rem;">
-                    <!-- 动态渲染备份条目 -->
-                  </div>
-                </div>
-              </div>
-            </div>
 
           </div>
 

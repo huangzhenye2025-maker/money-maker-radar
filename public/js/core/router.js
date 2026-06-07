@@ -79,7 +79,7 @@
       }
     } else if (pageId === 'settings') {
       loadSettingsData();
-      loadBackupsData();
+
     }
   }
 

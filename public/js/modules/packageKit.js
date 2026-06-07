@@ -121,9 +121,6 @@
               <span class="path-text">${state.currentSelectedRepo.physicalPackageData.absolutePath}</span>
             </div>
           </div>
-          <button class="btn-open-folder" onclick="openPhysicalFolder('${state.currentSelectedRepo.physicalPackageData.absolutePath.replace(/\\/g, '\\\\')}')">
-            <i data-lucide="folder-open"></i> 在本地打开
-          </button>
         `;
         lucide.createIcons();
         const inlineBtn = document.getElementById('btn-open-folder-inline');
@@ -398,13 +395,10 @@
           <div class="success-message">
             <i data-lucide="check-circle" style="color:#10b981;width:20px;height:20px"></i>
             <div>
-              <strong>组装成功！</strong><br>
+              <strong>组装成功</strong><br>
               <span class="path-text">${result.data.absolutePath}</span>
             </div>
           </div>
-          <button class="btn-open-folder" onclick="openPhysicalFolder('${result.data.absolutePath.replace(/\\/g, '\\\\')}')">
-            <i data-lucide="folder-open"></i> 在电脑中打开
-          </button>
         `;
         showToast('实物包组装完成！', 'success');
       } else {

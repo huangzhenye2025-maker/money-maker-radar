@@ -14,7 +14,7 @@ dotenv.config({ override: true });
 const Database = require('./storage/database');
 const PushService = require('./push/pushService');
 const aiAnalyst = require('./classify/aiAnalyst');
-const backupManager = require('./utils/backupManager');
+
 const SocialTrending = require('./fetch/socialTrending');
 const socialTrending = new SocialTrending();
 const scheduler = require('./utils/scheduler');
@@ -558,65 +558,7 @@ app.post('/api/operations/weekly', async (req, res) => {
 // ==================== 备份与恢复系统 API ====================
 
 // 1. 获取所有备份包列表
-app.get('/api/backups', async (req, res) => {
-  try {
-    const list = backupManager.listBackups();
-    res.json({ success: true, data: list });
-  } catch (error) {
-    res.status(500).json({ success: false, message: '获取备份列表失败: ' + error.message });
-  }
-});
-
-// 2. 手动创建一份新备份
-app.post('/api/backups', async (req, res) => {
-  try {
-    const result = backupManager.createBackup(false);
-    res.json({ success: true, message: '系统备份创建成功', data: result });
-  } catch (error) {
-    res.status(500).json({ success: false, message: '创建备份失败: ' + error.message });
-  }
-});
-
-// 3. 执行版本回滚
-app.post('/api/backups/:id/rollback', async (req, res) => {
-  try {
-    const { id } = req.params;
-    console.log(`【手动触发回滚】正在回滚至版本: ${id}...`);
-    
-    // 执行回滚，并在回滚前关闭数据库连接
-    const result = backupManager.rollback(id, () => {
-      if (db) {
-        db.close();
-      }
-    });
-
-    res.json({ 
-      success: true, 
-      message: '回滚成功！正在自动热重启后台服务进程以应用该版本，预计 2 秒后中断。请刷新页面。' 
-    });
-
-    // 延迟 2 秒后强制关闭 Node 进程
-    setTimeout(() => {
-      console.log('【服务重启】由于执行了版本回滚，当前服务端进程正在退出，请重新运行或配置守护程序自动重启。');
-      process.exit(0);
-    }, 2000);
-
-  } catch (error) {
-    console.error('版本回滚失败:', error);
-    res.status(500).json({ success: false, message: '版本回滚失败: ' + error.message });
-  }
-});
-
-// 4. 删除指定备份包
-app.delete('/api/backups/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    backupManager.deleteBackup(id);
-    res.json({ success: true, message: '备份包删除成功' });
-  } catch (error) {
-    res.status(500).json({ success: false, message: '删除备份包失败: ' + error.message });
-  }
-});
+);
 
 
 
