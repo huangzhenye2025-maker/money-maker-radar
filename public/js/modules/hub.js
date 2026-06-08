@@ -588,7 +588,7 @@
               'twitter': 'Twitter/X', 'taaft': 'AI导航', 'juejin': '掘金', 'zhihu': '人人都是产品经理', '36kr': '36Kr'
             };
             const names = result.data.failedPlatforms.map(p => platformMap[p] || p).join('、');
-            showToast(`更新完成！但以下平台失败：${names}。请稍后使用单点刷新补抓。`, 'warning', 10000);
+            showToast(`更新完成！但以下平台拉取失败：${names}。请点击右侧关闭按钮后，在下方对应面板点击单点刷新图标补抓。`, 'warning', 0);
           } else {
             showToast('社媒热点抓取与 AI 比对报告成功更新！', 'success');
           }
