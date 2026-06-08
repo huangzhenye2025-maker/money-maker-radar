@@ -598,16 +598,17 @@
   // 绑定独立抓取事件
   document.querySelectorAll('.btn-single-fetch').forEach(btn => {
     btn.addEventListener('click', async (e) => {
-      const platform = e.currentTarget.getAttribute('data-platform');
+      const targetBtn = e.currentTarget;
+      const platform = targetBtn.getAttribute('data-platform');
       if (!platform) return;
       
-      const icon = e.currentTarget.querySelector('i');
+      const icon = targetBtn.querySelector('i');
       if (icon) {
         icon.setAttribute('data-lucide', 'loader-2');
         icon.classList.add('spin');
         if (window.lucide) window.lucide.createIcons();
       }
-      e.currentTarget.disabled = true;
+      targetBtn.disabled = true;
 
       try {
         const response = await fetch('/api/social/fetch-single', {
@@ -627,7 +628,7 @@
       } catch (err) {
         showToast(`${platform} 抓取请求失败: ${err.message}`, 'error');
       } finally {
-        e.currentTarget.disabled = false;
+        targetBtn.disabled = false;
         if (icon) {
           icon.setAttribute('data-lucide', 'refresh-cw');
           icon.classList.remove('spin');
