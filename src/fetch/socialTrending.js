@@ -217,12 +217,51 @@ class SocialTrending {
     return trends.length > 0 ? trends : this.getMockSspaiTrends();
   }
 
-  // ==================== Reddit r/SideProject 抓取 ====================
+  // ==================== 扩展：海外与前沿平台抓取 ====================
+
   async fetchRedditTrends() {
-    console.log('【Reddit抓取】正在获取 r/SideProject 全球独立开发热门项目...');
+    console.log('【Reddit抓取】正在多线程获取 r/SideProject, r/SaaS, r/OpenAI...');
+    const subreddits = ['SideProject', 'SaaS', 'OpenAI'];
+    let allTrends = [];
+    
+    for (const sub of subreddits) {
+      try {
+        const response = await axios.get(`https://www.reddit.com/r/${sub}/hot.rss`, {
+          timeout: 10000,
+          headers: { 'User-Agent': this.userAgent }
+        });
+        const $ = cheerio.load(response.data, { xmlMode: true });
+        $('entry').each((i, el) => {
+          if (allTrends.length >= 25) return;
+          const title = $(el).find('title').text();
+          const url = $(el).find('link').attr('href');
+          const published = $(el).find('updated').text();
+          const author = $(el).find('author name').text();
+          allTrends.push({
+            platform: 'reddit',
+            title: `[r/${sub}] ${title}`,
+            url: url,
+            views_or_likes: 'Reddit Hot',
+            views_count: 0,
+            published_at: published ? new Date(published).toLocaleDateString('zh-CN') : '近期',
+            author: author || 'Redditor'
+          });
+        });
+      } catch (error) {
+        console.warn(`[Reddit r/${sub}] 抓取失败: ${error.message}`);
+      }
+    }
+    
+    if (allTrends.length === 0) return this.getMockRedditTrends();
+    console.log(`【Reddit】成功获取 ${allTrends.length} 条海外副业话题`);
+    return allTrends;
+  }
+
+  async fetchProductHunt() {
+    console.log('【Product Hunt抓取】正在获取全球最新 AI/SaaS 产品...');
     const trends = [];
     try {
-      const response = await axios.get('https://www.reddit.com/r/SideProject/hot.rss', {
+      const response = await axios.get('https://www.producthunt.com/feed', {
         timeout: 10000,
         headers: { 'User-Agent': this.userAgent }
       });
@@ -231,24 +270,143 @@ class SocialTrending {
         if (trends.length >= 15) return;
         const title = $(el).find('title').text();
         const url = $(el).find('link').attr('href');
-        const published = $(el).find('updated').text();
+        const published = $(el).find('published').text();
         const author = $(el).find('author name').text();
         trends.push({
-          platform: 'reddit',
+          platform: 'producthunt',
           title: title,
           url: url,
-          views_or_likes: 'Reddit Hot',
+          views_or_likes: 'PH 热门',
           views_count: 0,
-          published_at: published ? new Date(published).toLocaleDateString('zh-CN') : '近期',
-          author: author || 'Redditor'
+          published_at: published ? new Date(published).toLocaleDateString('zh-CN') : '今日',
+          author: author || 'Maker'
         });
       });
-    } catch (error) {
-      console.warn(`[Reddit] 抓取失败: ${error.message}`);
-      return this.getMockRedditTrends();
+    } catch (e) {
+      console.warn(`[Product Hunt] 抓取失败: ${e.message}`);
+      return this.getMockProductHunt();
     }
-    console.log(`【Reddit】成功获取 ${trends.length} 条海外副业话题`);
-    return trends.length > 0 ? trends : this.getMockRedditTrends();
+    return trends.length > 0 ? trends : this.getMockProductHunt();
+  }
+
+  async fetchHackerNews() {
+    console.log('【Hacker News抓取】正在获取 YC 社区极客热点...');
+    const trends = [];
+    try {
+      const response = await axios.get('https://news.ycombinator.com/rss', {
+        timeout: 10000,
+        headers: { 'User-Agent': this.userAgent }
+      });
+      const $ = cheerio.load(response.data, { xmlMode: true });
+      $('item').each((i, el) => {
+        if (trends.length >= 15) return;
+        const title = $(el).find('title').text();
+        const url = $(el).find('link').text();
+        const published = $(el).find('pubDate').text();
+        trends.push({
+          platform: 'hackernews',
+          title: title,
+          url: url,
+          views_or_likes: 'HN Frontpage',
+          views_count: 0,
+          published_at: published ? new Date(published).toLocaleDateString('zh-CN') : '今日',
+          author: 'HN User'
+        });
+      });
+    } catch (e) {
+      console.warn(`[Hacker News] 抓取失败: ${e.message}`);
+      return this.getMockHackerNews();
+    }
+    return trends.length > 0 ? trends : this.getMockHackerNews();
+  }
+
+  async fetchTwitterAITrends() {
+    console.log('【Twitter/X】正在获取海外 AI 创始人和独立开发者风向标...');
+    // 使用 Nitter RSS 代理节点 (由于公共节点经常挂掉，准备了失败回退)
+    const trends = [];
+    const queries = ['levelsio', 'rowancheung', 'search?q=%23buildinpublic'];
+    
+    for (const q of queries) {
+      try {
+        const url = q.startsWith('search') ? `https://nitter.net/${q}&rss=1` : `https://nitter.net/${q}/rss`;
+        const response = await axios.get(url, { timeout: 8000, headers: { 'User-Agent': this.userAgent } });
+        const $ = cheerio.load(response.data, { xmlMode: true });
+        $('item').each((i, el) => {
+          if (trends.length >= 15) return;
+          const title = $(el).find('title').text();
+          const url = $(el).find('link').text();
+          trends.push({
+            platform: 'twitter',
+            title: title,
+            url: url,
+            views_or_likes: 'Twitter 热门',
+            views_count: 0,
+            published_at: '近期',
+            author: q.startsWith('search') ? '推友' : `@${q}`
+          });
+        });
+      } catch (e) {
+        console.warn(`[Twitter/X] Nitter 节点抓取失败 (${q}): ${e.message}`);
+      }
+    }
+    return trends.length > 0 ? trends : this.getMockTwitter();
+  }
+
+    async fetchAIDirectories() {
+    console.log('【AI 导航】正在通过 RSSHub 获取量子位 AI 资讯...');
+    const trends = [];
+    try {
+      const response = await axios.get('https://rsshub.rssforever.com/qbitai/category/%E8%B5%84%E8%AE%AF', { timeout: 10000, headers: { 'User-Agent': this.userAgent } });
+      const $ = cheerio.load(response.data, { xmlMode: true });
+      $('item').each((i, el) => {
+        if (trends.length >= 10) return;
+        trends.push({
+          platform: 'taaft',
+          title: $(el).find('title').text(),
+          url: $(el).find('link').text(),
+          views_or_likes: 'AI 资讯',
+          views_count: 0,
+          published_at: $(el).find('pubDate').text() || '今日',
+          author: '量子位'
+        });
+      });
+    } catch (e) {
+      console.warn(`[AI Directories] RSSHub 抓取失败: ${e.message}`);
+      return this.getMockAIDirectories();
+    }
+    return trends.length > 0 ? trends : this.getMockAIDirectories();
+  }
+
+  async fetchJuejin() {
+    console.log('【掘金 Juejin】正在获取国内技术与前沿 AI 文章...');
+    const trends = [];
+    try {
+      // 掘金综合热榜 API
+      const response = await axios.post('https://api.juejin.cn/recommend_api/v1/article/recommend_all_feed', {
+        id_type: 2, client_type: 2608, sort_type: 200, cursor: "0", limit: 20
+      }, { headers: { 'User-Agent': this.userAgent } });
+      
+      if (response.data && response.data.data) {
+        response.data.data.forEach(item => {
+          if (item.item_info && item.item_info.article_info) {
+            const article = item.item_info.article_info;
+            trends.push({
+              platform: 'juejin',
+              title: article.title,
+              url: `https://juejin.cn/post/${article.article_id}`,
+              views_or_likes: `${article.view_count || 0} 阅读`,
+              views_count: article.view_count || 0,
+              published_at: new Date(article.ctime * 1000).toLocaleDateString('zh-CN'),
+              author: item.item_info.author_user_info?.user_name || '掘金掘友'
+            });
+          }
+        });
+      }
+    } catch (e) {
+      console.warn(`[Juejin] 抓取失败: ${e.message}`);
+      return this.getMockJuejin();
+    }
+    return trends.length > 0 ? trends : this.getMockJuejin();
   }
 
 
@@ -327,20 +485,85 @@ class SocialTrending {
     return trends.length > 0 ? trends : this.getMockBilibiliTrends();
   }
 
+  // ==================== 知乎 (Zhihu) 抓取 ====================
+      async fetchZhihuTrends() {
+    console.log('【产品经理抓取】正在通过 RSSHub 获取人人都是产品经理热门文章...');
+    const trends = [];
+    try {
+      const response = await axios.get('https://rsshub.rssforever.com/woshipm/popular', { timeout: 10000, headers: { 'User-Agent': this.userAgent } });
+      const $ = cheerio.load(response.data, { xmlMode: true });
+      $('item').each((i, el) => {
+        if (trends.length >= 15) return;
+        trends.push({
+          platform: 'zhihu', // Keep 'zhihu' to maintain frontend compatibility without needing UI changes immediately, but we change author
+          title: $(el).find('title').text(),
+          url: $(el).find('link').text(),
+          views_or_likes: '热门商业干货',
+          views_count: 0,
+          published_at: $(el).find('pubDate').text() || '今日',
+          author: '产品经理社区'
+        });
+      });
+    } catch (error) {
+      console.warn(`[Woshipm] RSSHub 抓取失败: ${error.message}`);
+      return this.getMockZhihuTrends();
+    }
+    return trends.length > 0 ? trends : this.getMockZhihuTrends();
+  }
+
+  // ==================== 36氪 (36Kr) 抓取 ====================
+    async fetch36KrTrends() {
+    console.log('【36Kr抓取】正在通过 RSSHub 获取 36氪快讯...');
+    const trends = [];
+    try {
+      const response = await axios.get('https://rsshub.rssforever.com/36kr/newsflashes', { timeout: 10000, headers: { 'User-Agent': this.userAgent } });
+      const $ = cheerio.load(response.data, { xmlMode: true });
+      $('item').each((i, el) => {
+        if (trends.length >= 15) return;
+        trends.push({
+          platform: '36kr',
+          title: $(el).find('title').text(),
+          url: $(el).find('link').text(),
+          views_or_likes: '36氪快讯',
+          views_count: 0,
+          published_at: $(el).find('pubDate').text() || '今日',
+          author: '36氪'
+        });
+      });
+    } catch (error) {
+      console.warn(`[36Kr] RSSHub 抓取失败: ${error.message}`);
+      return this.getMock36KrTrends();
+    }
+    return trends.length > 0 ? trends : this.getMock36KrTrends();
+  }
+
   // ==================== 聚合入口 ====================
 
   async fetchAll() {
-    console.log('【五大情报聚合】开始并发抓取 国内(B站, 少数派, V2EX) 与 海外(YouTube, Reddit) 热点数据...');
+    console.log('【全面情报聚合】开始并发抓取 国内(B站,少数派,V2EX,掘金,知乎,36Kr) 与 海外(YouTube,Reddit,PH,HN,推特,TAAFT)...');
     try {
-      const [youtubeList, redditList, sspaiList, v2exList, bilibiliList] = await Promise.all([
+      const [
+        youtubeList, redditList, sspaiList, v2exList, bilibiliList,
+        phList, hnList, twitterList, taaftList, juejinList, zhihuList, krList
+      ] = await Promise.all([
         this.fetchYouTubeMultiQuery(),
         this.fetchRedditTrends(),
         this.fetchSspaiTrends(),
         this.fetchV2exHot(),
-        this.fetchBilibiliTechTrends()
+        this.fetchBilibiliTechTrends(),
+        this.fetchProductHunt(),
+        this.fetchHackerNews(),
+        this.fetchTwitterAITrends(),
+        this.fetchAIDirectories(),
+        this.fetchJuejin(),
+        this.fetchZhihuTrends(),
+        this.fetch36KrTrends()
       ]);
-      const combined = [...youtubeList, ...redditList, ...sspaiList, ...v2exList, ...bilibiliList];
-      console.log(`【情报聚合】完成。YouTube: ${youtubeList.length}, Reddit: ${redditList.length}, 少数派: ${sspaiList.length}, V2EX: ${v2exList.length}, Bilibili: ${bilibiliList.length}`);
+      const combined = [
+        ...youtubeList, ...redditList, ...sspaiList, ...v2exList, ...bilibiliList,
+        ...phList, ...hnList, ...twitterList, ...taaftList, ...juejinList, ...zhihuList, ...krList
+      ];
+      console.log(`【情报聚合】完成。累计提取 ${combined.length} 条数据（来源涵盖 12 个独立站与社区）`);
       return combined;
     } catch (e) {
       console.error('社媒聚合抓取异常，启用全本地高保真缓存数据:', e.message);
@@ -349,7 +572,14 @@ class SocialTrending {
         ...this.getMockRedditTrends(),
         ...this.getMockSspaiTrends(),
         ...this.getMockV2exTrends(),
-        ...this.getMockBilibiliTrends()
+        ...this.getMockBilibiliTrends(),
+        ...this.getMockProductHunt(),
+        ...this.getMockHackerNews(),
+        ...this.getMockTwitter(),
+        ...this.getMockAIDirectories(),
+        ...this.getMockJuejin(),
+        ...this.getMockZhihuTrends(),
+        ...this.getMock36KrTrends()
       ];
     }
   }
@@ -447,6 +677,64 @@ class SocialTrending {
         url: 'https://www.bilibili.com/video/BV1zV4y1W7q2', views_or_likes: '15.2万播放',
         views_count: 152000, published_at: '3天前', author: '某AUP主', is_mock: true
       }
+    ];
+  }
+
+  getMockProductHunt() {
+    return [
+      { platform: 'producthunt', title: 'Cursor for Designers - Generate UI components using AI', url: 'https://producthunt.com/mock1', views_or_likes: '1024 Upvotes', views_count: 1024, published_at: '今日', author: 'PH Maker', is_mock: true },
+      { platform: 'producthunt', title: 'MakeMyApp - Text to full stack application', url: 'https://producthunt.com/mock2', views_or_likes: '850 Upvotes', views_count: 850, published_at: '今日', author: 'SaaS Dev', is_mock: true }
+    ];
+  }
+
+  getMockHackerNews() {
+    return [
+      { platform: 'hackernews', title: 'Show HN: A local AI agent that answers your emails', url: 'https://news.ycombinator.com/mock1', views_or_likes: 'HN Hot', views_count: 400, published_at: '今日', author: 'HN User', is_mock: true }
+    ];
+  }
+
+  getMockTwitter() {
+    return [
+      { platform: 'twitter', title: 'Just hit $10k MRR with this AI wrapper I built in 2 hours! Thread 🧵', url: 'https://twitter.com/mock', views_or_likes: '500 Likes', views_count: 500, published_at: '今日', author: '@indie_hacker', is_mock: true }
+    ];
+  }
+
+  getMockAIDirectories() {
+    return [
+      { platform: 'taaft', title: 'Auto-Blogger AI - Generate 100 SEO posts in minutes', url: 'https://theresanaiforthat.com/mock', views_or_likes: 'New Tool', views_count: 0, published_at: '今日', author: 'TAAFT', is_mock: true }
+    ];
+  }
+
+  getMockJuejin() {
+    return [
+      {
+        platform: 'juejin', title: '前端架构师带你深入理解 Cursor 的底层原理',
+        url: 'https://juejin.cn/post/mock1', views_or_likes: '2.5w 阅读',
+        views_count: 25000, published_at: '刚刚', author: '前端小智', is_mock: true
+      },
+      {
+        platform: 'juejin', title: '如何利用大模型构建个人知识库并实现自动化',
+        url: 'https://juejin.cn/post/mock2', views_or_likes: '1.2w 阅读',
+        views_count: 12000, published_at: '刚刚', author: 'AI全栈', is_mock: true
+      }
+    ];
+  }
+
+  getMockZhihuTrends() {
+    return [
+      { platform: 'zhihu', title: 'OpenAI 刚刚发布了新模型，对未来的影响有哪些？', url: '#', views_or_likes: '958万 热度', views_count: 9580000, published_at: '今日', author: 'AI前沿' },
+      { platform: 'zhihu', title: '独立开发者如何靠一个工具月入十万？', url: '#', views_or_likes: '822万 热度', views_count: 8220000, published_at: '今日', author: '创业笔记' },
+      { platform: 'zhihu', title: '有哪些非常适合普通人入局的 AI 副业方向？', url: '#', views_or_likes: '645万 热度', views_count: 6450000, published_at: '昨天', author: '干货收集者' },
+      { platform: 'zhihu', title: '国内大模型集体降价，会带来哪些商业机会？', url: '#', views_or_likes: '511万 热度', views_count: 5110000, published_at: '今日', author: '科技观察' }
+    ];
+  }
+
+  getMock36KrTrends() {
+    return [
+      { platform: '36kr', title: '独家 | 某AI独角兽完成新一轮数亿美元融资', url: '#', views_or_likes: '创投首发', views_count: 5000, published_at: '2小时前', author: '36氪创投频道' },
+      { platform: '36kr', title: 'SaaS 出海成共识，这几家公司是如何拿到第一批海外用户的？', url: '#', views_or_likes: '深度商业', views_count: 4000, published_at: '4小时前', author: '出海日报' },
+      { platform: '36kr', title: '大厂高管离职做AI，他们的变现思路有哪些不同？', url: '#', views_or_likes: '人物专访', views_count: 3500, published_at: '今日', author: '未来科技' },
+      { platform: '36kr', title: '2026年 AI 应用生态研究报告：效率工具依然是最赚钱的赛道', url: '#', views_or_likes: '行研报告', views_count: 8000, published_at: '昨日', author: '36氪研究院' }
     ];
   }
 }

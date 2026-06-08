@@ -5,6 +5,7 @@
   const filterSearch = document.getElementById('filter-search');
   const filterCategory = document.getElementById('filter-category');
   const filterLanguage = document.getElementById('filter-language');
+  const filterCommercialTier = document.getElementById('filter-commercial-tier');
   const filterSort = document.getElementById('filter-sort');
   const reposGrid = document.getElementById('repos-grid');
   const explorerLoading = document.getElementById('explorer-loading');
@@ -63,7 +64,7 @@
     }, 450);
   });
 
-  [filterCategory, filterLanguage, filterSort].forEach(select => {
+  [filterCategory, filterLanguage, filterSort, filterCommercialTier].forEach(select => {
     if (select) {
       select.addEventListener('change', loadExplorerData);
     }
@@ -78,6 +79,7 @@
       const query = filterSearch.value.trim();
       const category = filterCategory.value;
       const language = filterLanguage.value;
+      const commercialTier = filterCommercialTier ? filterCommercialTier.value : '';
       const sortBy = filterSort ? filterSort.value : 'fetched_at';
 
       // 组装 API 查询参数
@@ -85,6 +87,7 @@
       if (query) url += `&query=${encodeURIComponent(query)}`;
       if (category) url += `&category=${category}`;
       if (language) url += `&language=${language}`;
+      if (commercialTier) url += `&commercialTier=${commercialTier}`;
       if (sortBy) url += `&sortBy=${sortBy}`;
 
       const response = await fetch(url);
@@ -340,6 +343,7 @@
   
   const tabPreviewRed = document.getElementById('tab-preview-red');
   const tabPreviewWechat = document.getElementById('tab-preview-wechat');
+  const tabPreviewMoments = document.getElementById('tab-preview-moments');
   
   // README Drawer 相关的 DOM
   const readmeDrawerOverlay = document.getElementById('readme-drawer-overlay');
@@ -356,6 +360,7 @@
   
   const viewportXiaohongshu = document.getElementById('viewport-xiaohongshu');
   const viewportWechat = document.getElementById('viewport-wechat');
+  const viewportMoments = document.getElementById('viewport-moments');
   
   const xhsRenderedBody = document.getElementById('xhs-rendered-body');
   const wechatRenderedBody = document.getElementById('wechat-rendered-body');
@@ -605,6 +610,8 @@
       // 1 选择时：激活小红书和微信公众号预览
       if(tabPreviewRed) tabPreviewRed.classList.remove('disabled-tab');
       if(tabPreviewWechat) tabPreviewWechat.classList.remove('disabled-tab');
+      if(tabPreviewMoments) tabPreviewMoments.classList.remove('disabled-tab');
+      if(tabPreviewMoments) tabPreviewMoments.classList.remove('disabled-tab');
       if(tabPreviewImage) tabPreviewImage.classList.remove('disabled-tab');
       
       // 如果状态异常，重置为小红书或微信
@@ -641,6 +648,7 @@
     // 联动切换预览视口展示
     if(viewportXiaohongshu) viewportXiaohongshu.classList.add('hidden');
     if(viewportWechat) viewportWechat.classList.add('hidden');
+    if(viewportMoments) viewportMoments.classList.add('hidden');
     if(viewportImageGen) viewportImageGen.classList.add('hidden');
     
     if (state.activeOpPlatform === 'xiaohongshu') {
@@ -649,6 +657,12 @@
         btnDownloadPoster.classList.remove('hidden');
       }
     } else if (state.activeOpPlatform === 'wechat') {
+      if(viewportWechat) viewportWechat.classList.remove('hidden');
+      btnDownloadPoster.classList.add('hidden');
+    } else if (state.activeOpPlatform === 'moments') {
+      if(viewportMoments) viewportMoments.classList.remove('hidden');
+      btnDownloadPoster.classList.add('hidden');
+    
       if(viewportWechat) viewportWechat.classList.remove('hidden');
       btnDownloadPoster.classList.add('hidden');
     } else if (state.activeOpPlatform === 'image-gen') {
@@ -843,6 +857,7 @@
     opActionFooter.classList.add('hidden');
 
     const cta = document.getElementById('op-cta-input').value.trim();
+    const planetName = document.getElementById('op-planet-name') ? document.getElementById('op-planet-name').value.trim() : '';
 
     try {
       let response;
@@ -852,7 +867,9 @@
           id: state.selectedOpRepos[0],
           platform: state.activeOpPlatform,
           customPrompt: document.getElementById('op-custom-prompt') ? document.getElementById('op-custom-prompt').value.trim() : '',
-          cta: cta
+          cta: cta,
+          planetName: planetName,
+          planetName: planetName
         };
 
         response = await fetch('/api/operations/generate', {
@@ -882,6 +899,7 @@
         state.generatedCopy = result.copy;
         state.generatedCopyXhs = result.copyXhs || result.copy;
         state.generatedCopyWechat = result.copyWechat || result.copy;
+        state.generatedCopyMoments = result.copyMoments || '';
         
         // 渲染视口
         opResultsWrapper.classList.remove('hidden');

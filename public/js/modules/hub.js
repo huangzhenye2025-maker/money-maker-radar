@@ -4,6 +4,13 @@
   const youtubeTrendsList = document.getElementById('youtube-trends-list');
   const bilibiliTrendsList = document.getElementById('bilibili-trends-list');
   const v2exTrendsList = document.getElementById('v2ex-trends-list');
+  const producthuntTrendsList = document.getElementById('producthunt-trends-list');
+  const hackernewsTrendsList = document.getElementById('hackernews-trends-list');
+  const juejinTrendsList = document.getElementById('juejin-trends-list');
+  const twitterTrendsList = document.getElementById('twitter-trends-list');
+  const taaftTrendsList = document.getElementById('taaft-trends-list');
+  const zhihuTrendsList = document.getElementById('zhihu-trends-list');
+  const krTrendsList = document.getElementById('36kr-trends-list');
   const socialAnalysisReportContainer = document.getElementById('social-analysis-report-container');
   const btnSocialFetchNow = document.getElementById('btn-social-fetch-now');
   const socialProgress = document.getElementById('social-progress');
@@ -17,6 +24,13 @@
     if (youtubeTrendsList) youtubeTrendsList.innerHTML = `<div class="loading-spinner" style="padding: 2rem;"><span class="spinner"></span><p style="font-size:0.75rem">加载中...</p></div>`;
     if (bilibiliTrendsList) bilibiliTrendsList.innerHTML = `<div class="loading-spinner" style="padding: 2rem;"><span class="spinner"></span><p style="font-size:0.75rem">加载中...</p></div>`;
     if (v2exTrendsList) v2exTrendsList.innerHTML = `<div class="loading-spinner" style="padding: 2rem;"><span class="spinner"></span><p style="font-size:0.75rem">加载中...</p></div>`;
+    if (producthuntTrendsList) producthuntTrendsList.innerHTML = `<div class="loading-spinner" style="padding: 2rem;"><span class="spinner"></span><p style="font-size:0.75rem">加载中...</p></div>`;
+    if (hackernewsTrendsList) hackernewsTrendsList.innerHTML = `<div class="loading-spinner" style="padding: 2rem;"><span class="spinner"></span><p style="font-size:0.75rem">加载中...</p></div>`;
+    if (juejinTrendsList) juejinTrendsList.innerHTML = `<div class="loading-spinner" style="padding: 2rem;"><span class="spinner"></span><p style="font-size:0.75rem">加载中...</p></div>`;
+    if (twitterTrendsList) twitterTrendsList.innerHTML = `<div class="loading-spinner" style="padding: 2rem;"><span class="spinner"></span><p style="font-size:0.75rem">加载中...</p></div>`;
+    if (taaftTrendsList) taaftTrendsList.innerHTML = `<div class="loading-spinner" style="padding: 2rem;"><span class="spinner"></span><p style="font-size:0.75rem">加载中...</p></div>`;
+    if (zhihuTrendsList) zhihuTrendsList.innerHTML = `<div class="loading-spinner" style="padding: 2rem;"><span class="spinner"></span><p style="font-size:0.75rem">加载中...</p></div>`;
+    if (krTrendsList) krTrendsList.innerHTML = `<div class="loading-spinner" style="padding: 2rem;"><span class="spinner"></span><p style="font-size:0.75rem">加载中...</p></div>`;
     if (socialAnalysisReportContainer) socialAnalysisReportContainer.innerHTML = `<div class="loading-spinner" style="padding: 4rem 2rem;"><span class="spinner"></span><p style="font-size:0.8rem">分析中...</p></div>`;
     
     try { 
@@ -105,59 +119,106 @@
     const sectionTitle = topPicksSection.querySelector('h2');
     if (sectionTitle) sectionTitle.innerHTML = 'AI 综合热度评估报告';
 
-    topPicksCards.innerHTML = hotItems.map(s => `
-      <div class="top-pick-card" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-        <div class="top-pick-header" style="margin-bottom: 0.5rem;">
-          <span class="top-pick-name">${s.repo_name || '未知项目'} ${s.verdict === '强推' ? '<span class="badge" style="background:#f59e0b;color:#fff;margin-left:8px">强推</span>' : ''}</span>
-          ${renderTrendArrow(s.trend_direction)}
-        </div>
-        <div class="top-pick-match" style="margin-bottom: 0.8rem; color: #cbd5e1; font-size: 0.95rem; line-height: 1.4;">${s.social_match || ''}</div>
-        <div class="top-pick-scores">
-          <div class="score-item">
-            <span class="score-label">GitHub热度</span>
-            ${renderScoreBadge(s.github_score, 'GitHub热度评分')}
+    topPicksCards.classList.remove('top-picks-grid'); // Remove grid class so it doesn't try to place dots as grid items
+    window._topPicksData = hotItems;
+    if (typeof window._topPicksIndex === 'undefined') {
+      window._topPicksIndex = 0;
+    }
+
+    window.renderCurrentTopPick = () => {
+      const s = window._topPicksData[window._topPicksIndex];
+      if (!s) return;
+      
+      const cardsHtml = `
+      <div class="carousel-wrapper" style="position: relative;">
+        <button class="carousel-arrow left-arrow" onclick="window.prevTopPick()">
+          <i data-lucide="chevron-left"></i>
+        </button>
+        <button class="carousel-arrow right-arrow" onclick="window.nextTopPick()">
+          <i data-lucide="chevron-right"></i>
+        </button>
+        
+        <div class="top-pick-card carousel-slide" style="min-height: 220px;">
+          <div class="top-pick-header">
+            <span class="top-pick-name">${s.repo_name || '未知项目'} ${s.verdict === '强推' ? '<span class="badge" style="background:#f59e0b;color:#fff;margin-left:8px">强推</span>' : ''}</span>
+            ${renderTrendArrow(s.trend_direction)}
           </div>
-          <div class="score-item">
-            <span class="score-label">海外热度</span>
-            ${renderScoreBadge(s.social_score, '海外社媒热度')}
+          <div class="top-pick-match">${s.social_match || ''}</div>
+          <div class="top-pick-scores">
+            <div class="score-item">
+              <span class="score-label">GitHub热度</span>
+              ${renderScoreBadge(s.github_score, 'GitHub热度评分')}
+            </div>
+            <div class="score-item">
+              <span class="score-label">海外热度</span>
+              ${renderScoreBadge(s.social_score, '海外社媒热度')}
+            </div>
+            <div class="score-item">
+              <span class="score-label">国内热度</span>
+              ${renderScoreBadge(s.domestic_score, '国内平台热度')}
+            </div>
           </div>
-          <div class="score-item">
-            <span class="score-label">国内热度</span>
-            ${renderScoreBadge(s.domestic_score, '国内平台热度')}
-          </div>
-        </div>
-        <div class="info-gap-section" style="margin: 0.5rem 0 0 0; padding: 0.6rem; background: rgba(245,158,11,0.1); border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 0.85rem; color: #f59e0b; font-weight: 600;"><i data-lucide="trending-up" class="icon-sm"></i> 信息差指数: ${s.info_gap > 0 ? '+' : ''}${s.info_gap || 0}</span>
-          <div style="display: flex; gap: 0.4rem;">
-            ${s.xhs_copy ? `<button class="btn btn-sm copy-xhs-btn" data-copy="${encodeURIComponent(s.xhs_copy)}" style="background: #ff2442; color: #fff; padding: 0.2rem 0.6rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.75rem;"><i data-lucide="clipboard-copy" class="icon-sm"></i> 复制文案</button>` : ''}
-            <button class="btn btn-sm btn-open-ops" data-repo-url="${s.repo_name || ''}" style="background: #6366f1; color: #fff; padding: 0.2rem 0.6rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.75rem;"><i data-lucide="megaphone" class="icon-sm"></i> 发文排版</button>
+          <div class="info-gap-section" style="padding: 0.6rem; background: rgba(245,158,11,0.1); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(245,158,11,0.2); margin-top: auto;">
+            <span style="font-size: 0.8rem; color: #f59e0b; font-weight: 600;"><i data-lucide="trending-up" class="icon-sm"></i> 信息差指数: ${s.info_gap > 0 ? '+' : ''}${s.info_gap || 0}</span>
+            <div style="display: flex; gap: 0.4rem;">
+              ${s.xhs_copy ? `<button class="btn btn-sm copy-xhs-btn" data-copy="${encodeURIComponent(s.xhs_copy)}" style="background: #ff2442; color: #fff; padding: 0.2rem 0.5rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.75rem;"><i data-lucide="clipboard-copy" class="icon-sm"></i> 文案</button>` : ''}
+              <button class="btn btn-sm btn-open-ops" data-repo-url="${s.repo_name || ''}" style="background: #6366f1; color: #fff; padding: 0.2rem 0.5rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.75rem;"><i data-lucide="megaphone" class="icon-sm"></i> 发文</button>
+            </div>
           </div>
         </div>
       </div>
-    `).join('');
+      <div class="carousel-controls">
+         ${window._topPicksData.map((_, i) => `<div class="carousel-dot ${i === window._topPicksIndex ? 'active' : ''}" onclick="window.setTopPickIndex(${i})"></div>`).join('')}
+      </div>
+      `;
+      topPicksCards.innerHTML = cardsHtml;
 
-    // 绑定复制事件
-    document.querySelectorAll('.copy-xhs-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const text = decodeURIComponent(e.currentTarget.getAttribute('data-copy'));
-        navigator.clipboard.writeText(text).then(() => {
-          showToast('✨ 小红书爆款文案已复制到剪贴板！', 'success');
+      // 绑定复制事件
+      topPicksCards.querySelectorAll('.copy-xhs-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const text = decodeURIComponent(e.currentTarget.getAttribute('data-copy'));
+          navigator.clipboard.writeText(text).then(() => {
+            showToast('✨ 小红书爆款文案已复制到剪贴板！', 'success');
+          });
         });
       });
-    });
 
-    // 绑定发文排版事件
-    document.querySelectorAll('.btn-open-ops').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const url = btn.getAttribute('data-repo-url');
-        if (window.openMediaOpsDrawer) {
-          window.openMediaOpsDrawer(url);
-        }
+      // 绑定发文排版事件
+      topPicksCards.querySelectorAll('.btn-open-ops').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const url = btn.getAttribute('data-repo-url');
+          if (window.openMediaOpsDrawer) {
+            window.openMediaOpsDrawer(url);
+          }
+        });
       });
-    });
 
-    lucide.createIcons();
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    };
+
+    window.nextTopPick = () => {
+      window.setTopPickIndex((window._topPicksIndex + 1) % window._topPicksData.length);
+    };
+
+    window.prevTopPick = () => {
+      window.setTopPickIndex((window._topPicksIndex - 1 + window._topPicksData.length) % window._topPicksData.length);
+    };
+
+    window.setTopPickIndex = (i) => {
+       window._topPicksIndex = i;
+       window.renderCurrentTopPick();
+       clearInterval(window._topPicksInterval);
+       window._topPicksInterval = setInterval(() => {
+          window._topPicksIndex = (window._topPicksIndex + 1) % window._topPicksData.length;
+          window.renderCurrentTopPick();
+       }, 5000);
+    };
+
+    // 初始渲染并启动轮播
+    window.setTopPickIndex(0);
   }
 
   // 渲染 Chart.js 双轴对比图
@@ -286,8 +347,15 @@
     const sspaiTrends = trends.filter(t => t.platform === 'sspai');
     const redditTrends = trends.filter(t => t.platform === 'reddit');
     const ytTrends = trends.filter(t => t.platform === 'youtube');
-    const bilibiliTrends = trends.filter(t => t.platform === 'bilibili');
-    const v2exTrends = trends.filter(t => t.platform === 'v2ex');
+    const bilibiliTrends = trends.filter(t => t.platform === 'bilibili').slice(0, 5);
+    const phTrends = trends.filter(t => t.platform === 'producthunt').slice(0, 5);
+    const hnTrends = trends.filter(t => t.platform === 'hackernews').slice(0, 5);
+    const twitterTrends = trends.filter(t => t.platform === 'twitter').slice(0, 5);
+    const taaftTrends = trends.filter(t => t.platform === 'taaft' || t.platform === 'theresanaiforthat').slice(0, 5);
+    const juejinTrends = trends.filter(t => t.platform === 'juejin').slice(0, 5);
+    const zhihuTrends = trends.filter(t => t.platform === 'zhihu').slice(0, 5);
+    const krTrends = trends.filter(t => t.platform === '36kr').slice(0, 5);
+    const v2exTrends = trends.filter(t => t.platform === 'v2ex').slice(0, 5);
 
     // 渲染 X 话题
     // 渲染 少数派(Sspai) 列表
@@ -400,6 +468,34 @@
         }).join('');
       }
     }
+
+    const renderGenericList = (listEl, dataArr, emptyMsg) => {
+      if (listEl) {
+        if (dataArr.length === 0) {
+          listEl.innerHTML = `<div class="list-placeholder" style="padding: 2rem;"><p>${emptyMsg}</p></div>`;
+        } else {
+          listEl.innerHTML = dataArr.map((t, idx) => `
+            <a href="${t.url}" target="_blank" class="x-trend-row">
+              <div style="display: flex; flex-direction: column; flex-grow: 1; overflow: hidden;">
+                <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                  <span class="x-trend-rank">#${idx + 1}</span>
+                  <span class="x-trend-title" title="${t.title}">${t.title}</span>
+                </div>
+              </div>
+              <span class="x-trend-volume">${t.views_or_likes || ''}</span>
+            </a>
+          `).join('');
+        }
+      }
+    };
+
+    renderGenericList(producthuntTrendsList, phTrends, '暂无 Product Hunt 热点');
+    renderGenericList(hackernewsTrendsList, hnTrends, '暂无 Hacker News 热点');
+    renderGenericList(twitterTrendsList, twitterTrends, '暂无 Twitter/X 热点');
+    renderGenericList(taaftTrendsList, taaftTrends, '暂无 量子位 AI 资讯');
+    renderGenericList(juejinTrendsList, juejinTrends, '暂无 掘金 前端热点');
+    renderGenericList(zhihuTrendsList, zhihuTrends, '暂无 人人都是产品经理 商业干货');
+    renderGenericList(krTrendsList, krTrends, '暂无 36Kr AI创投资讯');
 
     // 渲染 AI 报告
     if (socialAnalysisReportContainer) {

@@ -130,6 +130,14 @@
   const btnFetchWxHot10w = document.getElementById('btn-fetch-wx-hot10w');
   const wxLoadingSkeleton = document.getElementById('wx-loading-skeleton');
   const wxResultsContainer = document.getElementById('wx-results-container');
+  const btnAiExtractMonetization = document.getElementById('btn-ai-extract-monetization');
+  const wxMonetizationPanel = document.getElementById('wx-monetization-panel');
+  const wxMonetizationContent = document.getElementById('wx-monetization-content');
+  let currentWxData = null;
+  const btnAiExtractPainpoints = document.getElementById('btn-ai-extract-painpoints');
+  const xhsPainpointsPanel = document.getElementById('xhs-painpoints-panel');
+  const xhsPainpointsContent = document.getElementById('xhs-painpoints-content');
+  let currentXhsData = null;
 
   if (tabWxSearch && tabWxHot10w) {
     tabWxSearch.addEventListener('click', () => {
@@ -258,4 +266,79 @@
       }
     });
   }
-
+
+  if (btnAiExtractPainpoints) {
+    btnAiExtractPainpoints.addEventListener('click', async () => {
+      if (!currentXhsData || !currentXhsData.items || currentXhsData.items.length === 0) {
+        showToast('请先进行赛道探测获取数据', 'warning');
+        return;
+      }
+      
+      btnAiExtractPainpoints.disabled = true;
+      btnAiExtractPainpoints.innerHTML = '<i data-lucide="loader" class="spin"></i> AI深度提炼中...';
+      lucide.createIcons();
+      xhsPainpointsPanel.classList.remove('hidden');
+      xhsPainpointsContent.innerHTML = '<p style="color: #9ca3af;"><i data-lucide="loader" class="spin" style="margin-right:0.5rem;width:14px;height:14px;display:inline-block;"></i> 大模型正在逐条分析上述爆款笔记数据，提取受众真实痛点...</p>';
+      lucide.createIcons();
+      
+      try {
+        const response = await fetch('/api/xhs/extract-painpoints', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keyword: document.getElementById('xhs-keyword-input').value, data: currentXhsData.items.slice(0, 50) })
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+          xhsPainpointsContent.innerHTML = window.marked ? window.marked.parse(result.painPoints) : result.painPoints.replace(/\n/g, '<br>');
+        } else {
+          throw new Error(result.message || '提炼失败');
+        }
+      } catch (err) {
+        showToast('AI 痛点提炼失败: ' + err.message, 'error');
+        xhsPainpointsContent.innerHTML = `<p style="color: #ef4444;">提炼失败: ${err.message}</p>`;
+      } finally {
+        btnAiExtractPainpoints.disabled = false;
+        btnAiExtractPainpoints.innerHTML = '<i data-lucide="brain-circuit"></i> AI 一键提炼核心痛点';
+        lucide.createIcons();
+      }
+    });
+  }
+
+  if (btnAiExtractMonetization) {
+    btnAiExtractMonetization.addEventListener('click', async () => {
+      if (!currentWxData || !currentWxData.items || currentWxData.items.length === 0) {
+        showToast('请先进行赛道探测获取数据', 'warning');
+        return;
+      }
+      
+      btnAiExtractMonetization.disabled = true;
+      btnAiExtractMonetization.innerHTML = '<i data-lucide="loader" class="spin"></i> AI变现拆解中...';
+      lucide.createIcons();
+      wxMonetizationPanel.classList.remove('hidden');
+      wxMonetizationContent.innerHTML = '<p style="color: #9ca3af;"><i data-lucide="loader" class="spin" style="margin-right:0.5rem;width:14px;height:14px;display:inline-block;"></i> 大模型正在穿透这些爆文，深挖背后的变现模式与搞钱路径...</p>';
+      lucide.createIcons();
+      
+      try {
+        const response = await fetch('/api/wechat/extract-monetization', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keyword: document.getElementById('wx-keyword-input').value || document.getElementById('wx-category-select').value, data: currentWxData.items.slice(0, 30) })
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+          wxMonetizationContent.innerHTML = window.marked ? window.marked.parse(result.monetization) : result.monetization.replace(/\n/g, '<br>');
+        } else {
+          throw new Error(result.message || '拆解失败');
+        }
+      } catch (err) {
+        showToast('AI 变现拆解失败: ' + err.message, 'error');
+        wxMonetizationContent.innerHTML = `<p style="color: #ef4444;">拆解失败: ${err.message}</p>`;
+      } finally {
+        btnAiExtractMonetization.disabled = false;
+        btnAiExtractMonetization.innerHTML = '<i data-lucide="scan-eye"></i> AI 变现模式拆解';
+        lucide.createIcons();
+      }
+    });
+  }

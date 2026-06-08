@@ -334,7 +334,7 @@ class Database {
     });
   }
 
-  async queryRepositories({ category, language, minStars, minScore, hasReport, isStarred, query, sortBy = 'fetched_at', limit = 50, offset = 0 }) {
+  async queryRepositories({ category, language, minStars, minScore, commercialTier, hasReport, isStarred, query, sortBy = 'fetched_at', limit = 50, offset = 0 }) {
     return new Promise((resolve, reject) => {
       let sql = `SELECT * FROM repositories WHERE 1=1`;
       const params = [];
@@ -357,6 +357,14 @@ class Database {
       if (query) {
         sql += ` AND (name LIKE ? OR description LIKE ?)`;
         params.push(`%${query}%`, `%${query}%`);
+      }
+
+      if (commercialTier === 'traffic') {
+        sql += ` AND commercial_score IS NOT NULL AND commercial_score < 70`;
+      } else if (commercialTier === 'high_ticket') {
+        sql += ` AND commercial_score >= 70 AND commercial_score < 85`;
+      } else if (commercialTier === 'saas') {
+        sql += ` AND commercial_score >= 85`;
       }
 
       // 动态排序引擎

@@ -41,19 +41,19 @@
         </button>
         <button class="nav-item" data-page="github">
           <i data-lucide="compass"></i>
-          <span>榜单挖掘</span>
+          <span>开源资产金矿</span>
         </button>
         <button class="nav-item" data-page="operations">
           <i data-lucide="megaphone"></i>
-          <span>自媒体运营</span>
+          <span>社群引流工坊</span>
         </button>
         <button class="nav-item" data-page="xhs-data">
           <i data-lucide="bar-chart-2"></i>
-          <span>小红书探测</span>
+          <span>全网痛点侦测</span>
         </button>
         <button class="nav-item" data-page="wechat-data">
           <i data-lucide="message-circle"></i>
-          <span>公众号大盘</span>
+          <span>同赛道竞品监控</span>
         </button>
         <button class="nav-item" data-page="settings">
           <i data-lucide="sliders"></i>
@@ -175,108 +175,229 @@
             </div>
           </div>
 
-          <!-- 双栏比对网格 -->
+          <!-- 海内外双栏网格 -->
           <div class="social-monitor-grid">
-            <!-- 左栏：社媒实时源流 -->
-            <div class="social-sources-column">
-              
-              <div class="card" style="margin-bottom: 1.2rem; border-left: 3px solid #d32f2f;">
-                <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
-                  <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
-                    <i data-lucide="compass" style="color: #d32f2f;"></i>
-                    <span>少数派 (Sspai) 爆款工具</span>
-                  </h3>
-                  <span class="badge" style="background: rgba(211, 47, 47, 0.1); color: #ef5350;">国内效率应用</span>
-                </div>
-                <div class="card-body" style="padding: 0;">
-                  <div id="sspai-trends-list" class="social-list">
-                    <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="card" style="margin-bottom: 1.2rem; border-left: 3px solid #ff4500;">
-                <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
-                  <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
-                    <i data-lucide="globe" style="color: #ff4500;"></i>
-                    <span>Reddit 副业热榜 (r/SideProject)</span>
-                  </h3>
-                  <span class="badge" style="background: rgba(255, 69, 0, 0.1); color: #ff8a65;">海外独立开发者</span>
-                </div>
-                <div class="card-body" style="padding: 0;">
-                  <div id="reddit-trends-list" class="social-list">
-                    <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="card">
-                <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
-                  <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
-                    <i data-lucide="youtube" style="color: #ff0000; fill: #ff0000;"></i>
-                    <span>YouTube 热门技术视频</span>
-                  </h3>
-                  <span class="badge" style="background: rgba(255, 0, 0, 0.1); color: #ff0000;">观看量排行</span>
-                </div>
-                <div class="card-body" style="padding: 0;">
-                  <div id="youtube-trends-list" class="social-list">
-                    <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Bilibili 科技热点 -->
-              <div class="card" style="margin-top: 1.2rem;">
-                <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
-                  <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
-                    <i data-lucide="tv" style="color: #00a1d6;"></i>
-                    <span>Bilibili 科技/开源热榜</span>
-                  </h3>
-                  <span class="badge" style="background: rgba(0, 161, 214, 0.1); color: #00a1d6;">国内综合</span>
-                </div>
-                <div class="card-body" style="padding: 0;">
-                  <div id="bilibili-trends-list" class="social-list">
-                    <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- V2EX 开发者热榜 -->
-              <div class="card" style="margin-top: 1.2rem;">
-                <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
-                  <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
-                    <i data-lucide="message-square" style="color: #333344;"></i>
-                    <span>V2EX 开发者热榜</span>
-                  </h3>
-                  <span class="badge" style="background: rgba(255, 255, 255, 0.1); color: #ccc;">国内极客</span>
-                </div>
-                <div class="card-body" style="padding: 0;">
-                  <div id="v2ex-trends-list" class="social-list">
-                    <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 右栏：AI 趋势比对与风向标报告 -->
-            <div class="social-analysis-column">
-              <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-                <div class="card" style="height: 100%; display: flex; flex-direction: column;">
-                  <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
-                    <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem;">
-                      <i data-lucide="brain-circuit" style="color: hsl(var(--primary));"></i>
-                      <span>AI 爆款风向标与比对报告</span>
-                    </h3>
-                    <span class="badge glow-green">Gemini 智能洞察</span>
-                  </div>
-                  <div class="card-body" style="flex-grow: 1; overflow-y: auto; padding: 1.2rem;">
-                    <div id="social-analysis-report-container" class="markdown-body">
-                      <div class="list-placeholder" style="padding: 4rem 2rem;">
-                        <i data-lucide="compass" style="width: 48px; height: 48px; margin-bottom: 1rem; color: hsl(var(--primary)); opacity: 0.8;"></i>
-                        <h3>社媒比对大盘已就绪</h3>
-                        <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.5rem; max-width: 400px; margin-left: auto; margin-right: auto;">点击顶部按钮，系统将启动免密数据爬虫，获取 X 平台前沿大事件与 YouTube 评测排行，融合本地高星 GitHub 列表，输出深度商业机会预言书。</p>
+              <!-- 海外前沿热点板块 -->
+              <div class="region-section">
+                <h4 class="region-title"><i data-lucide="globe" style="color: #60a5fa;"></i> 海外前沿热点</h4>
+                <div class="region-grid">
+                  <!-- Product Hunt 最新发布 -->
+                  <div class="card" style="border-left: 3px solid #da552f;">
+                    <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                      <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                        <i data-lucide="rocket" style="color: #da552f;"></i>
+                        <span>Product Hunt 最新首发</span>
+                      </h3>
+                      <span class="badge" style="background: rgba(218, 85, 47, 0.1); color: #da552f;">全球 SaaS/AI 产品</span>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                      <div id="producthunt-trends-list" class="social-list">
+                        <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
                       </div>
                     </div>
+                  </div>
+
+                  <!-- Hacker News 极客热点 -->
+                  <div class="card" style="border-left: 3px solid #ff6600;">
+                    <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                      <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                        <i data-lucide="terminal" style="color: #ff6600;"></i>
+                        <span>Hacker News 极客热点</span>
+                      </h3>
+                      <span class="badge" style="background: rgba(255, 102, 0, 0.1); color: #ff6600;">海外极客</span>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                      <div id="hackernews-trends-list" class="social-list">
+                        <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Reddit 副业热榜 -->
+                  <div class="card" style="border-left: 3px solid #ff4500;">
+                    <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                      <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                        <i data-lucide="globe" style="color: #ff4500;"></i>
+                        <span>Reddit 副业热榜</span>
+                      </h3>
+                      <span class="badge" style="background: rgba(255, 69, 0, 0.1); color: #ff8a65;">海外独立开发者</span>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                      <div id="reddit-trends-list" class="social-list">
+                        <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Twitter / X 趋势 -->
+                  <div class="card" style="border-left: 3px solid #1da1f2;">
+                    <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                      <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                        <i data-lucide="twitter" style="color: #1da1f2;"></i>
+                        <span>Twitter/X AI风向标</span>
+                      </h3>
+                      <span class="badge" style="background: rgba(29, 161, 242, 0.1); color: #1da1f2;">海外开发者动态</span>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                      <div id="twitter-trends-list" class="social-list">
+                        <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- YouTube 热门技术视频 -->
+                  <div class="card">
+                    <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                      <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                        <i data-lucide="youtube" style="color: #ff0000; fill: #ff0000;"></i>
+                        <span>YouTube 热门视频</span>
+                      </h3>
+                      <span class="badge" style="background: rgba(255, 0, 0, 0.1); color: #ff0000;">观看量排行</span>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                      <div id="youtube-trends-list" class="social-list">
+                        <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- TAAFT AI 导航 -->
+                  <div class="card" style="border-left: 3px solid #8b5cf6;">
+                    <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                      <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                        <i data-lucide="compass" style="color: #8b5cf6;"></i>
+                        <span>量子位 AI 资讯</span>
+                      </h3>
+                      <span class="badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">海外 AI 收录</span>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                      <div id="taaft-trends-list" class="social-list">
+                        <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 国内技术风向板块 -->
+              <div class="region-section">
+                <h4 class="region-title"><i data-lucide="map-pin" style="color: #ef4444;"></i> 国内技术风向</h4>
+                <div class="region-grid">
+                  <!-- 掘金 Juejin -->
+                  <div class="card" style="border-left: 3px solid #1e80ff;">
+                    <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                      <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                        <i data-lucide="book-open" style="color: #1e80ff;"></i>
+                        <span>掘金综合推荐</span>
+                      </h3>
+                      <span class="badge" style="background: rgba(30, 128, 255, 0.1); color: #1e80ff;">国内前端/全栈</span>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                      <div id="juejin-trends-list" class="social-list">
+                        <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 少数派 (Sspai) 爆款工具 -->
+                  <div class="card" style="border-left: 3px solid #d32f2f;">
+                    <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                      <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                        <i data-lucide="compass" style="color: #d32f2f;"></i>
+                        <span>少数派 (Sspai) 热榜</span>
+                      </h3>
+                      <span class="badge" style="background: rgba(211, 47, 47, 0.1); color: #ef5350;">国内效率应用</span>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                      <div id="sspai-trends-list" class="social-list">
+                        <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Bilibili 科技热点 -->
+                  <div class="card">
+                    <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                      <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                        <i data-lucide="tv" style="color: #00a1d6;"></i>
+                        <span>Bilibili 科技热点</span>
+                      </h3>
+                      <span class="badge" style="background: rgba(0, 161, 214, 0.1); color: #00a1d6;">国内综合</span>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                      <div id="bilibili-trends-list" class="social-list">
+                        <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- V2EX 开发者热榜 -->
+                  <div class="card">
+                    <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                      <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                        <i data-lucide="message-square" style="color: #333344;"></i>
+                        <span>V2EX 开发者热榜</span>
+                      </h3>
+                      <span class="badge" style="background: rgba(255, 255, 255, 0.1); color: #ccc;">国内极客</span>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                      <div id="v2ex-trends-list" class="social-list">
+                        <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Zhihu 知乎科技榜 -->
+                  <div class="card" style="border-left: 3px solid #0066ff;">
+                    <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                      <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                        <i data-lucide="help-circle" style="color: #0066ff;"></i>
+                        <span>人人都是产品经理</span>
+                      </h3>
+                      <span class="badge" style="background: rgba(0, 102, 255, 0.1); color: #0066ff;">大众痛点</span>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                      <div id="zhihu-trends-list" class="social-list">
+                        <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 36Kr 创投新闻 -->
+                  <div class="card" style="border-left: 3px solid #2e86de;">
+                    <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                      <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                        <i data-lucide="briefcase" style="color: #2e86de;"></i>
+                        <span>36Kr AI 创投</span>
+                      </h3>
+                      <span class="badge" style="background: rgba(46, 134, 222, 0.1); color: #2e86de;">商业变现</span>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                      <div id="36kr-trends-list" class="social-list">
+                        <div class="list-placeholder" style="padding: 2rem;"><p>暂无数据，请点击上方按钮抓取...</p></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+
+          <!-- 底部：AI 趋势比对与风向标报告 -->
+          <div class="social-analysis-column" style="margin-top: 1.5rem;">
+            <div class="card" style="display: flex; flex-direction: column; min-height: 400px;">
+              <div class="card-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.8rem;">
+                <h3 style="display: flex; align-items: center; gap: 0.5rem; font-size: 1.25rem; font-weight: 700; letter-spacing: 0.5px; color: #ffffff;">
+                  <i data-lucide="gem" style="color: hsl(var(--primary));"></i>
+                  <span>商业变现风向标与社群引流剧本</span>
+                </h3>
+                <span class="badge glow-green">DeepSeek 商业大脑</span>
+              </div>
+              <div class="card-body" style="flex-grow: 1; overflow-y: auto; padding: 1.2rem;">
+                <div id="social-analysis-report-container" class="markdown-body">
+                  <div class="list-placeholder" style="padding: 4rem 2rem;">
+                    <i data-lucide="book-open" style="width: 48px; height: 48px; margin-bottom: 1rem; color: hsl(var(--primary)); opacity: 0.8;"></i>
+                    <h3>商业分析大盘已就绪</h3>
+                    <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.5rem; max-width: 450px; margin-left: auto; margin-right: auto;">点击顶部按钮，系统将并发抓取海内外 12 大平台的痛点与热点，智能匹配开源解药，并自动为您生成**高转化率的社群引流文案与变现方案**。</p>
                   </div>
                 </div>
               </div>
@@ -284,7 +405,7 @@
           </div>
         </div>
 
-        <!-- 页面二：GitHub 榜单挖掘 -->
+        <!-- 页面二：开源资产金矿 -->
         <div id="page-github" class="subpage">
 
           <!-- 检索过滤器 -->
@@ -321,6 +442,16 @@
                   <option value="">所有项目 (All)</option>
                   <option value="has_report">仅看已出分析报告的</option>
                   <option value="high_score">仅看高分强推 (评分>=80)</option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label for="filter-commercial-tier">商业定级</label>
+                <select id="filter-commercial-tier">
+                  <option value="">全部资产</option>
+                  <option value="traffic">引流流量款 (低门槛)</option>
+                  <option value="high_ticket">高客单私有化 (赚外包快钱)</option>
+                  <option value="saas">SaaS 出海胚胎 (持续订阅收益)</option>
                 </select>
               </div>
 
@@ -430,10 +561,13 @@
                     <textarea id="op-custom-prompt" rows="2" placeholder="例如：重点强调它的某某功能，或者指定给某某行业的人看..."></textarea>
                   </div>
 
-                  <!-- 自定义引流 CTA -->
+                  <!-- 引流钩子配置 -->
                   <div class="op-form-group">
-                    <label for="op-cta-input">末尾引流话术 (CTA)</label>
-                    <textarea id="op-cta-input" rows="2" placeholder="配置引流文案。例如：后台回复【教程】领取一键托管部署包；或者微信：xxx 咨询变现合作。"></textarea>
+                    <label for="op-planet-name" style="margin-bottom: 0.4rem; display: block; font-size: 0.82rem; font-weight: 500; color: var(--text-secondary);">社群名称 / 知识星球</label>
+                    <input type="text" id="op-planet-name" placeholder="例如：AI破局俱乐部 / 高阶搞钱VIP群" value="高阶搞钱知识星球" style="width: 100%; padding: 0.6rem 0.8rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text-primary); margin-bottom: 1rem; outline: none;">
+                    
+                    <label for="op-cta-input" style="margin-bottom: 0.4rem; display: block; font-size: 0.82rem; font-weight: 500; color: var(--text-secondary);">入群门槛 / 引导转化话术</label>
+                    <textarea id="op-cta-input" rows="2" placeholder="配置引流文案。例如：关注公众号后台回复【入圈】，获取今日限量早鸟特价名额！" style="width: 100%; padding: 0.6rem 0.8rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text-primary); outline: none;"></textarea>
                   </div>
 
                   <!-- 两步走工作流按钮组 -->
@@ -469,6 +603,10 @@
                 <button class="op-preview-tab" data-platform="image-gen" id="tab-preview-image">
                   <i data-lucide="images"></i>
                   <span>获取生图提示词</span>
+                </button>
+                <button class="op-preview-tab" data-platform="moments" id="tab-preview-moments">
+                  <i data-lucide="message-square"></i>
+                  <span>朋友圈极短剧本</span>
                 </button>
               </div>
 
@@ -530,6 +668,19 @@
                         <div class="wechat-article-body" id="wechat-rendered-body">
                           <!-- 填充微信生成的 HTML / Markdown 格式推文 -->
                         </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 微信朋友圈极短剧本预览 -->
+                  <div class="preview-mode-viewport hidden" id="viewport-moments">
+                    <div class="xhs-text-panel" style="width: 100%; border: 1px solid rgba(0,255,0,0.2); background: rgba(0, 20, 0, 0.1);">
+                      <div class="xhs-text-panel-header" style="background: rgba(0,255,0,0.1); border-bottom: 1px solid rgba(0,255,0,0.2);">
+                        <h3 style="color: #10b981;"><i data-lucide="message-square" style="color: #10b981; width: 16px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 0.4rem;"></i>朋友圈群发剧本 (配图指引)</h3>
+                        <span class="badge glow-green">高转化极短文案</span>
+                      </div>
+                      <div class="xhs-text-panel-body" id="moments-rendered-body" style="font-size: 1rem; line-height: 1.6;">
+                        <!-- 填充朋友圈剧本 -->
                       </div>
                     </div>
                   </div>
@@ -596,12 +747,17 @@
           </div>
         </div>
 
-        <!-- 页面四：小红书爆款探测 (XHS Data) -->
+        <!-- 页面四：全网痛点侦测 (XHS Data) -->
         <div id="page-xhs-data" class="subpage">
           <div class="card" style="width: 100%; max-width: 1000px; margin: 2rem auto; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-            <div class="card-header" style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--border-color);">
-              <h2 style="font-size: 1.4rem; margin: 0;">📊 小红书爆款赛道大盘真实数据</h2>
-              <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0.5rem 0 0 0;">利用红狐 API 穿透小红书数据壁垒，实时检索全网高转化爆款笔记。</p>
+            <div class="card-header" style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h2 style="font-size: 1.4rem; margin: 0;"><i data-lucide="target" class="icon-sm" style="width: 24px; height: 24px; color: #ef4444;"></i> 全网大众痛点实时侦测</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0.5rem 0 0 0;">利用红狐 API 穿透社媒数据壁垒，实时检索高互动爆款，用 AI 提炼用户的真实焦虑与需求，反向指引开发！</p>
+              </div>
+              <button class="btn btn-primary hidden" id="btn-ai-extract-painpoints" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); border: none; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);">
+                <i data-lucide="brain-circuit"></i> AI 一键提炼核心痛点
+              </button>
             </div>
             <div class="card-body" style="padding: 2rem;">
               <div class="op-form-group">
@@ -617,6 +773,11 @@
                 <i data-lucide="loader" class="spin" style="margin-bottom: 1rem; display: inline-block; width: 32px; height: 32px;"></i>
                 <p style="font-size: 1.1rem;">正在拉取小红书全网大盘数据，请稍候...</p>
               </div>
+              <div id="xhs-painpoints-panel" class="hidden" style="margin-top: 1.5rem; background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px; padding: 1.5rem;">
+                <h3 style="color: #a78bfa; margin-top: 0; display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="brain-circuit"></i> AI 深度提炼核心痛点</h3>
+                <div id="xhs-painpoints-content" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-primary);"></div>
+              </div>
+
               <div id="xhs-results-container" style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; padding-right: 8px; max-height: calc(100vh - 350px);">
                 <!-- 结果卡片将渲染在这里 -->
                 <div style="text-align: center; color: #6b7280; padding: 4rem 0; font-size: 1.1rem; border: 1px dashed var(--border-color); border-radius: 8px; background: rgba(0,0,0,0.1);">
@@ -628,14 +789,17 @@
           </div>
         </div>
 
-        <!-- 页面五：微信公众号大盘 (WeChat Data) -->
+        <!-- 页面五：同赛道竞品监控 (WeChat Data) -->
         <div id="page-wechat-data" class="subpage">
           <div class="card" style="width: 100%; max-width: 1100px; margin: 2rem auto; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
             <div class="card-header" style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
               <div>
-                <h2 style="font-size: 1.4rem; margin: 0;"><i data-lucide="trending-up" class="icon-sm" style="width: 24px; height: 24px;"></i> 微信公众号大盘真实数据</h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0.5rem 0 0 0;">利用红狐 API 双引擎探测公众号爆款流量密码。</p>
+                <h2 style="font-size: 1.4rem; margin: 0;"><i data-lucide="swords" class="icon-sm" style="width: 24px; height: 24px; color: #10b981;"></i> 同赛道竞品全景监控</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0.5rem 0 0 0;">利用红狐 API 探测微信生态的同行爆款，一键拆解他们的变现链路与引流手法，直接复制过来搞钱！</p>
               </div>
+              <button class="btn btn-primary hidden" id="btn-ai-extract-monetization" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: none; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); margin-right: 1.5rem;">
+                <i data-lucide="scan-eye"></i> AI 变现模式拆解
+              </button>
               <div class="op-preview-tabs" style="border: 1px solid var(--border-color); padding: 0.2rem; border-radius: 8px;">
                 <button class="op-preview-tab active" data-wxtab="search" id="tab-wx-search" style="padding: 0.5rem 1rem;">
                   <i data-lucide="search"></i> 赛道爆款探测
@@ -689,6 +853,11 @@
               <div id="wx-loading-skeleton" class="hidden" style="margin-top: 1rem; text-align: center; color: #9ca3af; padding: 4rem 0;">
                 <i data-lucide="loader" class="spin" style="margin-bottom: 1rem; display: inline-block; width: 32px; height: 32px;"></i>
                 <p style="font-size: 1.1rem;">正在穿透微信流量池抓取数据，请稍候...</p>
+              </div>
+
+              <div id="wx-monetization-panel" class="hidden" style="margin-top: 1.5rem; background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 12px; padding: 1.5rem;">
+                <h3 style="color: #f59e0b; margin-top: 0; display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="scan-eye"></i> AI 同行变现与引流套路拆解</h3>
+                <div id="wx-monetization-content" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-primary);"></div>
               </div>
 
               <div id="wx-results-container" style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; padding-right: 8px; max-height: calc(100vh - 350px);">

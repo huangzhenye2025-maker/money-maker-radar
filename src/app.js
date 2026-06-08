@@ -118,7 +118,7 @@ app.post('/api/github/search', async (req, res) => {
 // 1. 获取仓库列表（支持高级检索与筛选）
 app.get('/api/repositories', async (req, res) => {
   try {
-    const { category, language, minStars, minScore, hasReport, isStarred, query, xhsCategory, sortBy, page = 1, limit = 50 } = req.query;
+    const { category, language, minStars, minScore, commercialTier, hasReport, isStarred, query, xhsCategory, sortBy, page = 1, limit = 50 } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
     const repos = await db.queryRepositories({
@@ -126,6 +126,7 @@ app.get('/api/repositories', async (req, res) => {
       language,
       minStars,
       minScore,
+      commercialTier,
       hasReport,
       isStarred,
       query,
@@ -183,6 +184,22 @@ app.post('/api/xhs/search', async (req, res) => {
   }
 });
 
+// 4.36.1 AI 提炼痛点
+app.post('/api/xhs/extract-painpoints', async (req, res) => {
+  try {
+    const { keyword, data } = req.body;
+    if (!keyword || !data || data.length === 0) {
+      return res.status(400).json({ success: false, message: '缺少痛点提取所需数据' });
+    }
+    const aiAnalyst = require('./classify/aiAnalyst');
+    const painPoints = await aiAnalyst.extractPainPoints(keyword, data);
+    res.json({ success: true, painPoints });
+  } catch (error) {
+    console.error('痛点提炼失败:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // 4.37 公众号爆款搜索
 app.post('/api/wechat/search', async (req, res) => {
   try {
@@ -208,6 +225,22 @@ app.post('/api/wechat/hot', async (req, res) => {
     res.json({ success: true, data: wxData });
   } catch (error) {
     console.error('公众号10w+榜单获取失败:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// 4.38.1 AI 竞品变现拆解
+app.post('/api/wechat/extract-monetization', async (req, res) => {
+  try {
+    const { keyword, data } = req.body;
+    if (!data || data.length === 0) {
+      return res.status(400).json({ success: false, message: '缺少拆解所需数据' });
+    }
+    const aiAnalyst = require('./classify/aiAnalyst');
+    const monetization = await aiAnalyst.extractMonetization(keyword, data);
+    res.json({ success: true, monetization });
+  } catch (error) {
+    console.error('竞品变现拆解失败:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
@@ -507,7 +540,7 @@ app.post('/api/repositories/:id/generate-copy', async (req, res) => {
 // 3.6. 自媒体矩阵运营文案生成接口 (单项目支持：语气、受众和引流定制)
 app.post('/api/operations/generate', async (req, res) => {
   try {
-    const { id, platform, customPrompt, cta } = req.body;
+    const { id, platform, customPrompt, cta, planetName } = req.body;
 
     if (!id || !platform) {
       return res.status(400).json({ success: false, message: '仓库ID及发布平台为必填参数' });
@@ -523,14 +556,15 @@ app.post('/api/operations/generate', async (req, res) => {
 
     console.log(`【自定义运营文案】正在为项目 ${repo.name} 生成 [${platform}] 格式文案... 个性化: ${customPrompt || '无'}`);
     const wechatName = process.env.WECHAT_ACCOUNT_NAME || 'GitHub 搞钱雷达';
-    const result = await aiAnalyst.generateCustomOperationsCopy(repo, platform, { customPrompt, cta, wechatName });
+    const result = await aiAnalyst.generateCustomOperationsCopy(repo, platform, { customPrompt, cta, wechatName, planetName });
 
     if (result && typeof result === 'object') {
       res.json({
         success: true,
         copy: result.copy,
         copyXhs: result.copyXhs,
-        copyWechat: result.copyWechat
+        copyWechat: result.copyWechat,
+        copyMoments: result.copyMoments
       });
     } else {
       res.json({ success: true, copy: result });
@@ -560,7 +594,7 @@ app.post('/api/feishu/sync-ledger', async (req, res) => {
 // 3.7. 微信公众号多项目聚合技术周报生成接口
 app.post('/api/operations/weekly', async (req, res) => {
   try {
-    const { ids, customPrompt, cta } = req.body;
+    const { ids, customPrompt, cta, planetName } = req.body;
 
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
       return res.status(400).json({ success: false, message: '请选择至少一个项目以生成周报合集' });
@@ -576,7 +610,8 @@ app.post('/api/operations/weekly', async (req, res) => {
     }
 
     console.log(`【聚合运营周报】正在为 ${matchedRepos.length} 个项目生成微信周报合集... `);
-    const copy = await aiAnalyst.generateCustomOperationsCopy(matchedRepos, 'weekly_digest', { customPrompt, cta });
+    const wechatName = process.env.WECHAT_ACCOUNT_NAME || 'GitHub 搞钱雷达';
+    const copy = await aiAnalyst.generateCustomOperationsCopy(matchedRepos, 'weekly_digest', { customPrompt, cta, wechatName, planetName });
 
     res.json({ success: true, copy });
   } catch (error) {
@@ -816,7 +851,7 @@ app.post('/api/push-now', async (req, res) => {
 // 10. 获取社媒话题与最新趋势分析报告
 app.get('/api/social/trends', async (req, res) => {
   try {
-    const trends = await db.getSocialTrends(100);
+    const trends = await db.getSocialTrends(500);
     const latestAnalysis = await db.getLatestSocialAnalysis();
     const schedulerStatus = scheduler.getStatus();
     res.json({
@@ -872,7 +907,7 @@ app.post('/api/social/fetch-now', async (req, res) => {
     }
 
     // 返回最新状态
-    const updatedTrends = await db.getSocialTrends(100);
+    const updatedTrends = await db.getSocialTrends(500);
     const latestAnalysis = await db.getLatestSocialAnalysis();
     res.json({
       success: true,
