@@ -134,8 +134,23 @@ class SocialScheduler {
       this.lastRunMessage = `成功抓取 ${rawTrends.length} 条热点，AI 评分 ${scores ? scores.length : 0} 个项目`;
       this._updateNextRunTime();
 
+      // 检测失败的平台
+      const platforms = ['youtube', 'reddit', 'sspai', 'v2ex', 'bilibili', 'producthunt', 'hackernews', 'twitter', 'taaft', 'juejin', 'zhihu', '36kr'];
+      const failedPlatforms = [];
+      for (const p of platforms) {
+        const pTrends = rawTrends.filter(t => t.platform === p);
+        if (pTrends.length === 0 || pTrends.every(t => t.is_mock)) {
+          failedPlatforms.push(p);
+        }
+      }
+
       console.log(`[Scheduler] ✅ 完成。${this.lastRunMessage}`);
-      return { success: true, trendsCount: rawTrends.length, scoresCount: scores ? scores.length : 0 };
+      return { 
+        success: true, 
+        trendsCount: rawTrends.length, 
+        scoresCount: scores ? scores.length : 0,
+        failedPlatforms 
+      };
     } catch (error) {
       this.lastRunStatus = 'error';
       this.lastRunMessage = `执行失败: ${error.message}`;

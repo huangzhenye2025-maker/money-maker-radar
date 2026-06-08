@@ -906,7 +906,6 @@ app.post('/api/social/fetch-now', async (req, res) => {
       return res.json({ success: false, message: '上次抓取任务仍在运行中，请稍候再试' });
     }
 
-    // 返回最新状态
     const updatedTrends = await db.getSocialTrends(500);
     const latestAnalysis = await db.getLatestSocialAnalysis();
     res.json({
@@ -915,7 +914,8 @@ app.post('/api/social/fetch-now', async (req, res) => {
         trends: updatedTrends,
         report: latestAnalysis ? latestAnalysis.report : '',
         scores: latestAnalysis ? (latestAnalysis.structured || []) : [],
-        schedulerStatus: scheduler.getStatus()
+        schedulerStatus: scheduler.getStatus(),
+        failedPlatforms: result.failedPlatforms || []
       }
     });
   } catch (error) {

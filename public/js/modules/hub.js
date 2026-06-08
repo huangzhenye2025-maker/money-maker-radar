@@ -580,7 +580,18 @@
           if (socialProgress) socialProgress.classList.add('hidden');
           renderSocialMonitor(result.data);
           loadSocialHistory();
-          showToast('社媒热点抓取与 AI 比对报告成功更新！', 'success');
+          
+          if (result.data.failedPlatforms && result.data.failedPlatforms.length > 0) {
+            const platformMap = {
+              'youtube': 'YouTube', 'reddit': 'Reddit', 'sspai': '少数派', 'v2ex': 'V2EX',
+              'bilibili': 'B站', 'producthunt': 'Product Hunt', 'hackernews': 'Hacker News',
+              'twitter': 'Twitter/X', 'taaft': 'AI导航', 'juejin': '掘金', 'zhihu': '人人都是产品经理', '36kr': '36Kr'
+            };
+            const names = result.data.failedPlatforms.map(p => platformMap[p] || p).join('、');
+            showToast(`更新完成！但以下平台失败：${names}。请稍后使用单点刷新补抓。`, 'warning', 10000);
+          } else {
+            showToast('社媒热点抓取与 AI 比对报告成功更新！', 'success');
+          }
         } else {
           throw new Error(result.message);
         }
