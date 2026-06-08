@@ -924,6 +924,37 @@ app.post('/api/social/fetch-now', async (req, res) => {
   }
 });
 
+app.post('/api/social/fetch-single', async (req, res) => {
+  try {
+    const { platform } = req.body;
+    if (!platform) {
+      return res.status(400).json({ success: false, message: 'Missing platform parameter' });
+    }
+    
+    console.log(`【手动单平台抓取】收到请求，平台: ${platform}`);
+    const newTrends = await socialTrending.fetchSinglePlatform(platform);
+    
+    if (newTrends && newTrends.length > 0) {
+      await db.insertSocialTrendsBatch(newTrends);
+    }
+    
+    const updatedTrends = await db.getSocialTrends(500);
+    const latestAnalysis = await db.getLatestSocialAnalysis();
+    res.json({
+      success: true,
+      data: {
+        trends: updatedTrends,
+        report: latestAnalysis ? latestAnalysis.report : '',
+        scores: latestAnalysis ? (latestAnalysis.structured || []) : [],
+        schedulerStatus: scheduler.getStatus()
+      }
+    });
+  } catch (error) {
+    console.error(`单平台抓取执行失败 [${req.body.platform}]:`, error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // 降级支持：如果前端单页路由需要支持 SPA history 路由
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));

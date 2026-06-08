@@ -594,4 +594,46 @@
       }
     });
   }
+
+  // 绑定独立抓取事件
+  document.querySelectorAll('.btn-single-fetch').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const platform = e.currentTarget.getAttribute('data-platform');
+      if (!platform) return;
+      
+      const icon = e.currentTarget.querySelector('i');
+      if (icon) {
+        icon.setAttribute('data-lucide', 'loader-2');
+        icon.classList.add('spin');
+        if (window.lucide) window.lucide.createIcons();
+      }
+      e.currentTarget.disabled = true;
+
+      try {
+        const response = await fetch('/api/social/fetch-single', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ platform })
+        });
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+          // 返回的是全量趋势数据，直接重新渲染整个监控面板，无缝刷新
+          renderSocialMonitor(result.data);
+          showToast(`${platform} 独立抓取成功！`, 'success');
+        } else {
+          showToast(`${platform} 独立抓取失败或无更新`, 'error');
+        }
+      } catch (err) {
+        showToast(`${platform} 抓取请求失败: ${err.message}`, 'error');
+      } finally {
+        e.currentTarget.disabled = false;
+        if (icon) {
+          icon.setAttribute('data-lucide', 'refresh-cw');
+          icon.classList.remove('spin');
+          if (window.lucide) window.lucide.createIcons();
+        }
+      }
+    });
+  });
 

@@ -124,7 +124,7 @@ class SocialTrending {
     try {
       const rssUrl = `https://www.youtube.com/feeds/videos.xml?search_query=${encodeURIComponent(query)}`;
       const rssResponse = await axios.get(rssUrl, {
-        timeout: 8000,
+        timeout: 20000,
         headers: { 'User-Agent': this.userAgent }
       });
       const $ = cheerio.load(rssResponse.data, { xmlMode: true });
@@ -195,7 +195,7 @@ class SocialTrending {
     console.log('【少数派抓取】正在获取 Sspai 效率工具与应用推荐...');
     const trends = [];
     try {
-      const response = await axios.get('https://sspai.com/api/v1/article/tag/page/get?limit=15&tag=%E6%95%88%E7%8E%87%E5%B7%A5%E5%85%B7', { timeout: 10000 });
+      const response = await axios.get('https://sspai.com/api/v1/article/tag/page/get?limit=15&tag=%E6%95%88%E7%8E%87%E5%B7%A5%E5%85%B7', { timeout: 25000 });
       if (response.data && response.data.data) {
         response.data.data.forEach(item => {
           trends.push({
@@ -227,7 +227,7 @@ class SocialTrending {
     for (const sub of subreddits) {
       try {
         const response = await axios.get(`https://www.reddit.com/r/${sub}/hot.rss`, {
-          timeout: 10000,
+          timeout: 25000,
           headers: { 'User-Agent': this.userAgent }
         });
         const $ = cheerio.load(response.data, { xmlMode: true });
@@ -262,7 +262,7 @@ class SocialTrending {
     const trends = [];
     try {
       const response = await axios.get('https://www.producthunt.com/feed', {
-        timeout: 10000,
+        timeout: 25000,
         headers: { 'User-Agent': this.userAgent }
       });
       const $ = cheerio.load(response.data, { xmlMode: true });
@@ -294,7 +294,7 @@ class SocialTrending {
     const trends = [];
     try {
       const response = await axios.get('https://news.ycombinator.com/rss', {
-        timeout: 10000,
+        timeout: 25000,
         headers: { 'User-Agent': this.userAgent }
       });
       const $ = cheerio.load(response.data, { xmlMode: true });
@@ -329,7 +329,7 @@ class SocialTrending {
     for (const q of queries) {
       try {
         const url = q.startsWith('search') ? `https://nitter.net/${q}&rss=1` : `https://nitter.net/${q}/rss`;
-        const response = await axios.get(url, { timeout: 8000, headers: { 'User-Agent': this.userAgent } });
+        const response = await axios.get(url, { timeout: 20000, headers: { 'User-Agent': this.userAgent } });
         const $ = cheerio.load(response.data, { xmlMode: true });
         $('item').each((i, el) => {
           if (trends.length >= 15) return;
@@ -356,7 +356,7 @@ class SocialTrending {
     console.log('【AI 导航】正在通过 RSSHub 获取量子位 AI 资讯...');
     const trends = [];
     try {
-      const response = await axios.get('https://rsshub.rssforever.com/qbitai/category/%E8%B5%84%E8%AE%AF', { timeout: 10000, headers: { 'User-Agent': this.userAgent } });
+      const response = await axios.get('https://rsshub.rssforever.com/qbitai/category/%E8%B5%84%E8%AE%AF', { timeout: 25000, headers: { 'User-Agent': this.userAgent } });
       const $ = cheerio.load(response.data, { xmlMode: true });
       $('item').each((i, el) => {
         if (trends.length >= 10) return;
@@ -419,7 +419,7 @@ class SocialTrending {
     try {
       const response = await axios.get('https://www.v2ex.com/index.xml', {
         headers: { 'User-Agent': this.userAgent },
-        timeout: 8000
+        timeout: 20000
       });
       const $ = cheerio.load(response.data, { xmlMode: true });
       $('entry').each((i, el) => {
@@ -453,7 +453,7 @@ class SocialTrending {
     try {
       const response = await axios.get('https://api.bilibili.com/x/web-interface/search/all/v2?keyword=' + encodeURIComponent('效率神器 AI工具 免费软件'), {
         headers: { 'User-Agent': this.userAgent },
-        timeout: 8000
+        timeout: 20000
       });
       
       const videoResult = response.data?.data?.result?.find(x => x.result_type === 'video');
@@ -490,7 +490,7 @@ class SocialTrending {
     console.log('【产品经理抓取】正在通过 RSSHub 获取人人都是产品经理热门文章...');
     const trends = [];
     try {
-      const response = await axios.get('https://rsshub.rssforever.com/woshipm/popular', { timeout: 10000, headers: { 'User-Agent': this.userAgent } });
+      const response = await axios.get('https://rsshub.rssforever.com/woshipm/popular', { timeout: 25000, headers: { 'User-Agent': this.userAgent } });
       const $ = cheerio.load(response.data, { xmlMode: true });
       $('item').each((i, el) => {
         if (trends.length >= 15) return;
@@ -516,7 +516,7 @@ class SocialTrending {
     console.log('【36Kr抓取】正在通过 RSSHub 获取 36氪快讯...');
     const trends = [];
     try {
-      const response = await axios.get('https://rsshub.rssforever.com/36kr/newsflashes', { timeout: 10000, headers: { 'User-Agent': this.userAgent } });
+      const response = await axios.get('https://rsshub.rssforever.com/36kr/newsflashes', { timeout: 25000, headers: { 'User-Agent': this.userAgent } });
       const $ = cheerio.load(response.data, { xmlMode: true });
       $('item').each((i, el) => {
         if (trends.length >= 15) return;
@@ -535,6 +535,33 @@ class SocialTrending {
       return this.getMock36KrTrends();
     }
     return trends.length > 0 ? trends : this.getMock36KrTrends();
+  }
+
+  // ==================== 单平台抓取入口 ====================
+  async fetchSinglePlatform(platformId) {
+    console.log(`【单平台抓取】正在触发单平台抓取: ${platformId}`);
+    try {
+      switch (platformId) {
+        case 'youtube': return await this.fetchYouTubeMultiQuery();
+        case 'reddit': return await this.fetchRedditTrends();
+        case 'sspai': return await this.fetchSspaiTrends();
+        case 'v2ex': return await this.fetchV2exHot();
+        case 'bilibili': return await this.fetchBilibiliTechTrends();
+        case 'producthunt': return await this.fetchProductHunt();
+        case 'hackernews': return await this.fetchHackerNews();
+        case 'twitter': return await this.fetchTwitterAITrends();
+        case 'taaft': return await this.fetchAIDirectories();
+        case 'juejin': return await this.fetchJuejin();
+        case 'zhihu': return await this.fetchZhihuTrends();
+        case '36kr': return await this.fetch36KrTrends();
+        default: 
+          console.error(`未知的平台ID: ${platformId}`);
+          return [];
+      }
+    } catch (e) {
+      console.error(`【单平台抓取失败】${platformId}:`, e.message);
+      return [];
+    }
   }
 
   // ==================== 聚合入口 ====================
