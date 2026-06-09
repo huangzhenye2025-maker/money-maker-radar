@@ -430,19 +430,10 @@
     const loading = document.getElementById('physical-loading');
     const resultDiv = document.getElementById('physical-result');
     const btnFull = document.getElementById('btn-download-full-zip');
-    const btnScript = document.getElementById('btn-download-script-zip');
     const originalFullHtml = btnFull.innerHTML;
-    const originalScriptHtml = btnScript.innerHTML;
     
-    if (type === 'full') {
-      btnFull.disabled = true;
-      btnFull.innerHTML = '<i data-lucide="loader-2" class="spin"></i> 打包下载中...';
-      btnScript.disabled = true;
-    } else {
-      btnScript.disabled = true;
-      btnScript.innerHTML = '<i data-lucide="loader-2" class="spin"></i> 生成中...';
-      btnFull.disabled = true;
-    }
+    btnFull.disabled = true;
+    btnFull.innerHTML = '<i data-lucide="loader-2" class="spin"></i> 打包下载中...';
     
     loading.classList.remove('hidden');
     resultDiv.classList.add('hidden');
@@ -508,8 +499,6 @@
       loading.classList.add('hidden');
       btnFull.disabled = false;
       btnFull.innerHTML = originalFullHtml;
-      btnScript.disabled = false;
-      btnScript.innerHTML = originalScriptHtml;
       lucide.createIcons();
     }
   };
