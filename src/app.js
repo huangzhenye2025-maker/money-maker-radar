@@ -234,7 +234,7 @@ app.post('/api/download-package', async (req, res) => {
     } else {
       // 纯脚本包，生成一个一键 clone 的脚本作为辅助
       if (repoUrl) {
-        const cloneBat = `@echo off\nchcp 65001 >nul\necho 正在为您拉取最新源码...\ngit clone ${repoUrl}.git\necho 源码拉取完成！\npause`;
+        const cloneBat = '\ufeff@echo off\r\nchcp 65001 >nul\r\ncd /d "%~dp0"\r\necho 正在为您拉取最新源码...\r\ngit clone ' + repoUrl + '.git\r\necho 源码拉取完成！\r\npause';
         zip.addFile('0.第一步拉取源码.bat', Buffer.from(cloneBat, 'utf-8'));
       }
     }
