@@ -179,13 +179,16 @@ app.post('/api/download-package', async (req, res) => {
     
     // 把 bat 文件和说明文本添加到 zip 根目录
     if (kit.startupBat) {
-      zip.addFile('运行.bat', Buffer.from(kit.startupBat, 'utf-8'));
+      const batContent = '\ufeff' + kit.startupBat.replace(/\r?\n/g, '\r\n');
+      zip.addFile('运行.bat', Buffer.from(batContent, 'utf-8'));
     }
     if (kit.envSetupBat) {
-      zip.addFile('安装环境.bat', Buffer.from(kit.envSetupBat, 'utf-8'));
+      const envContent = '\ufeff' + kit.envSetupBat.replace(/\r?\n/g, '\r\n');
+      zip.addFile('安装环境.bat', Buffer.from(envContent, 'utf-8'));
     }
     if (kit.userGuide) {
-      zip.addFile('小白必看使用说明.txt', Buffer.from(kit.userGuide, 'utf-8'));
+      const guideContent = kit.userGuide.replace(/\r?\n/g, '\r\n');
+      zip.addFile('小白必看使用说明.txt', Buffer.from(guideContent, 'utf-8'));
     }
     
     if (type === 'full') {
