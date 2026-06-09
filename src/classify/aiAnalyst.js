@@ -546,6 +546,8 @@ cd /d "%~dp0"
 
 4. **严禁凭空捏造 .exe 文件！**
 除非你在项目文件树里明确看到了 .exe，否则绝对不能在运行脚本里写 \`if not exist "xxx.exe"\`。对于 Node.js / React / Vue 项目，应该使用 \`npm install\` 和 \`npm run dev\` 或 \`npm start\`；对于 Python 项目，应该使用 \`python app.py\`。
+5. **严禁在 .bat 中自动下载安装基础环境！**
+如果检测到缺少 Node.js、Python、Rust 等基础环境，请只使用 \`echo\` 给出官方下载链接，并 \`pause\` 提示用户手动安装。**绝对不要**尝试用 \`curl\` 去自动下载安装程序（你极易混淆 Linux shell 脚本和 Windows exe，比如把 sh.rustup.rs 保存为 exe 导致报错，或者使用 CMD 不支持的单引号）。把下载安装的任务交还给用户！
 
 【完美范例】
 \`\`\`bat
