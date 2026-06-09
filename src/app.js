@@ -177,15 +177,7 @@ app.post('/api/download-package', async (req, res) => {
     const AdmZip = require('adm-zip');
     const zip = new AdmZip();
     
-    // 把 bat 文件和说明文本添加到 zip 根目录
-    if (kit.startupBat) {
-      const batContent = '\ufeff' + kit.startupBat.replace(/\r?\n/g, '\r\n');
-      zip.addFile('运行.bat', Buffer.from(batContent, 'utf-8'));
-    }
-    if (kit.envSetupBat) {
-      const envContent = '\ufeff' + kit.envSetupBat.replace(/\r?\n/g, '\r\n');
-      zip.addFile('安装环境.bat', Buffer.from(envContent, 'utf-8'));
-    }
+    // 不再生成 bat 文件，只保留说明文本
     if (kit.userGuide) {
       const guideContent = kit.userGuide.replace(/\r?\n/g, '\r\n');
       zip.addFile('小白必看使用说明.txt', Buffer.from(guideContent, 'utf-8'));

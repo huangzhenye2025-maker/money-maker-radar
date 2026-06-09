@@ -238,9 +238,7 @@
     const difficultyEmoji = data.packagingDifficulty === '简单' ? '🟢' : data.packagingDifficulty === '中等' ? '🟡' : '🔴';
 
     const scripts = [
-      { title: '<i data-lucide="play-circle" class="icon-sm"></i> 双击启动.bat', key: 'startupBat', desc: '小白用户双击此文件即可运行' },
-      { title: '<i data-lucide="settings" class="icon-sm"></i> 安装环境.bat', key: 'envSetupBat', desc: '首次运行前执行，自动配置运行环境' },
-      { title: '<i data-lucide="book-open" class="icon-sm"></i> 使用说明.txt', key: 'userGuide', desc: '面向终端用户的简易教程' },
+      { title: '<i data-lucide="book-open" class="icon-sm"></i> 使用说明.txt', key: 'userGuide', desc: '面向小白用户，教他们如何手动安装环境和运行项目' },
       { title: '<i data-lucide="wrench" class="icon-sm"></i> 打包教程', key: 'packagingTutorial', desc: '面向你自己的详细打包步骤' }
     ];
 
@@ -309,7 +307,7 @@
         </h4>
         <div style="display:flex;gap:12px;align-items:center; flex-wrap: wrap;">
           <button id="btn-download-full-zip" class="btn-action" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);" onclick="downloadZipPackage('full')">
-            <i data-lucide="download"></i> 下载完整源码包及环境脚本 (.zip)
+            <i data-lucide="download"></i> 下载源码压缩包及小白说明 (.zip)
           </button>
           
           <div style="width: 1px; height: 36px; background: rgba(255,255,255,0.1); margin: 0 4px;"></div>
