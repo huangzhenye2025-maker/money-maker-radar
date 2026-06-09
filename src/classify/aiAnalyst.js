@@ -544,6 +544,19 @@ cd /d "%~dp0"
 3. **小心括号内的特殊字符！**
 在 \`if\` 或 \`for\` 的括号 \`()\` 内部，严禁直接使用管道符 \`|\` 或重定向符 \`>\`，除非转义为 \`^|\` 或 \`^>\`。最安全的做法是把复杂命令拿到括号外面去执行。
 
+4. **严禁凭空捏造 .exe 文件！**
+除非你在项目文件树里明确看到了 .exe，否则绝对不能在运行脚本里写 \`if not exist "xxx.exe"\`。对于 Node.js / React / Vue 项目，应该使用 \`npm install\` 和 \`npm run dev\` 或 \`npm start\`；对于 Python 项目，应该使用 \`python app.py\`。
+
+【完美范例】
+\`\`\`bat
+@echo off
+chcp 65001 >nul
+cd /d "%~dp0"
+echo 正在启动应用...
+call npm start
+pause
+\`\`\`
+
 【项目信息】
 项目名称: ${repo.name}
 项目描述: ${repo.description}
