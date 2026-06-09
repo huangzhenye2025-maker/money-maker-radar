@@ -302,20 +302,32 @@
         </ul>
       </div>` : ''}
 
-      <!-- 自动组装实物文件夹区域 -->
-      <div class="physical-package-area">
-        <div style="display:flex;gap:12px;align-items:center;">
-          <button id="btn-build-physical" class="btn-action btn-build-physical" onclick="buildPhysicalPackage()">
-          <i data-lucide="download-cloud"></i> 自动组装实物包
-        </button>
-          <button id="btn-open-folder-inline" class="hidden btn-open-folder" onclick="openPhysicalFolderInline()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:0.75rem 1.5rem;border-radius:12px;font-weight:600;display:flex;align-items:center;gap:0.5rem;cursor:pointer;transition:all 0.2s;">
+      <!-- 自动组装与下载区域 -->
+      <div class="physical-package-area" style="margin-top: 1.5rem; padding: 1.5rem; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px;">
+        <h4 style="margin-top: 0; margin-bottom: 1rem; color: #10b981; display: flex; align-items: center; gap: 0.5rem;">
+          <i data-lucide="package-check"></i> 获取一键安装包 (用于网盘分享)
+        </h4>
+        <div style="display:flex;gap:12px;align-items:center; flex-wrap: wrap;">
+          <button id="btn-download-full-zip" class="btn-action" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);" onclick="downloadZipPackage('full')">
+            <i data-lucide="download"></i> 下载完整源码整合包 (.zip)
+          </button>
+          <button id="btn-download-script-zip" class="btn-action" style="background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.2); padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: background 0.2s;" onclick="downloadZipPackage('script')">
+            <i data-lucide="file-code"></i> 仅下载轻量脚本包 (.zip)
+          </button>
+          
+          <div style="width: 1px; height: 36px; background: rgba(255,255,255,0.1); margin: 0 4px;"></div>
+          
+          <button id="btn-build-physical" class="btn-action btn-build-physical" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa;" onclick="buildPhysicalPackage()">
+            <i data-lucide="folder-output"></i> 生成本地测试文件夹
+          </button>
+          <button id="btn-open-folder-inline" class="hidden btn-open-folder" onclick="openPhysicalFolderInline()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:0.75rem 1.5rem;border-radius:8px;font-weight:600;display:flex;align-items:center;gap:0.5rem;cursor:pointer;transition:all 0.2s;">
             <i data-lucide="folder-open"></i> 打开文件夹
           </button>
         </div>
-        <div id="physical-loading" class="hidden physical-loading-state">
-          <i data-lucide="loader-2" class="spin"></i> 正在拉取源码并组装，请稍候 (约需10-30秒)...
+        <div id="physical-loading" class="hidden physical-loading-state" style="margin-top: 1rem;">
+          <i data-lucide="loader-2" class="spin"></i> 正在处理中，请稍候 (视网络情况可能需要10-60秒)...
         </div>
-        <div id="physical-result" class="hidden physical-result-state">
+        <div id="physical-result" class="hidden physical-result-state" style="margin-top: 1rem;">
           <!-- 结果展示 -->
         </div>
       </div>
@@ -409,6 +421,98 @@
       showToast('组装实物包失败: ' + err.message, 'error');
     } finally {
       btn.disabled = false;
+      lucide.createIcons();
+    }
+  };
+
+  window.downloadZipPackage = async function(type) {
+    if (!state.currentSelectedRepo || !currentPackageKitData) return;
+    const repo = state.currentSelectedRepo;
+    
+    // UI Loading state
+    const loading = document.getElementById('physical-loading');
+    const resultDiv = document.getElementById('physical-result');
+    const btnFull = document.getElementById('btn-download-full-zip');
+    const btnScript = document.getElementById('btn-download-script-zip');
+    const originalFullHtml = btnFull.innerHTML;
+    const originalScriptHtml = btnScript.innerHTML;
+    
+    if (type === 'full') {
+      btnFull.disabled = true;
+      btnFull.innerHTML = '<i data-lucide="loader-2" class="spin"></i> 打包下载中...';
+      btnScript.disabled = true;
+    } else {
+      btnScript.disabled = true;
+      btnScript.innerHTML = '<i data-lucide="loader-2" class="spin"></i> 生成中...';
+      btnFull.disabled = true;
+    }
+    
+    loading.classList.remove('hidden');
+    resultDiv.classList.add('hidden');
+    lucide.createIcons();
+
+    try {
+      const response = await fetch('/api/download-package', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kit: currentPackageKitData,
+          repoUrl: repo.url,
+          repoName: repo.name,
+          type: type
+        })
+      });
+
+      if (!response.ok) {
+        let errMsg = '下载请求失败';
+        try {
+          const errData = await response.json();
+          errMsg = errData.message || errMsg;
+        } catch(e) {}
+        throw new Error(errMsg);
+      }
+
+      // 处理文件流下载
+      const blob = await response.blob();
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'package.zip';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename\*=UTF-8''(.+)/);
+        if (filenameMatch && filenameMatch.length === 2) {
+          filename = decodeURIComponent(filenameMatch[1]);
+        }
+      }
+
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = downloadUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(downloadUrl);
+      document.body.removeChild(a);
+
+      resultDiv.classList.remove('hidden');
+      resultDiv.innerHTML = `
+        <div class="success-message">
+          <i data-lucide="check-circle" style="color:#10b981;width:20px;height:20px"></i>
+          <div>
+            <strong>下载成功</strong><br>
+            <span class="path-text">请在浏览器的“下载”文件夹中查看：${filename}</span>
+          </div>
+        </div>
+      `;
+      showToast('整合包下载成功！', 'success');
+      lucide.createIcons();
+    } catch (err) {
+      showToast('打包下载失败: ' + err.message, 'error');
+    } finally {
+      loading.classList.add('hidden');
+      btnFull.disabled = false;
+      btnFull.innerHTML = originalFullHtml;
+      btnScript.disabled = false;
+      btnScript.innerHTML = originalScriptHtml;
       lucide.createIcons();
     }
   };

@@ -168,7 +168,89 @@ app.post('/api/repositories/:id/package-kit', async (req, res) => {
   }
 });
 
-// 4.36 搜索小红书真实爆款赛道数据
+// 2.6. 生成并下载一键整合包 (ZIP)
+app.post('/api/download-package', async (req, res) => {
+  try {
+    const { kit, repoUrl, repoName, type } = req.body;
+    // type: 'full' (完整源码包) | 'script' (纯脚本包)
+    
+    const AdmZip = require('adm-zip');
+    const zip = new AdmZip();
+    
+    // 把 bat 文件和说明文本添加到 zip 根目录
+    if (kit.startupBat) {
+      zip.addFile('运行.bat', Buffer.from(kit.startupBat, 'utf-8'));
+    }
+    if (kit.envSetupBat) {
+      zip.addFile('安装环境.bat', Buffer.from(kit.envSetupBat, 'utf-8'));
+    }
+    if (kit.userGuide) {
+      zip.addFile('小白必看使用说明.txt', Buffer.from(kit.userGuide, 'utf-8'));
+    }
+    
+    if (type === 'full') {
+      // 下载 GitHub 源码 ZIP
+      if (repoUrl && repoUrl.includes('github.com/')) {
+        const parts = repoUrl.split('github.com/');
+        const ownerRepo = parts[parts.length - 1].replace(/\/$/, '');
+        // GitHub ZIP 下载地址
+        const zipUrl = `https://github.com/${ownerRepo}/archive/refs/heads/main.zip`;
+        
+        try {
+          const axios = require('axios');
+          const response = await axios({
+            method: 'get',
+            url: zipUrl,
+            responseType: 'arraybuffer'
+          });
+          
+          const sourceZip = new AdmZip(response.data);
+          // 将源码 zip 里的内容提取出来放入最终 zip
+          const zipEntries = sourceZip.getEntries();
+          zipEntries.forEach(entry => {
+            zip.addFile(entry.entryName, entry.getData());
+          });
+        } catch (downloadErr) {
+          console.warn(`下载主分支源码失败, 尝试 master 分支...`, downloadErr.message);
+          try {
+            const zipUrlMaster = `https://github.com/${ownerRepo}/archive/refs/heads/master.zip`;
+            const axios = require('axios');
+            const response = await axios({
+              method: 'get',
+              url: zipUrlMaster,
+              responseType: 'arraybuffer'
+            });
+            const sourceZip = new AdmZip(response.data);
+            sourceZip.getEntries().forEach(entry => zip.addFile(entry.entryName, entry.getData()));
+          } catch (e2) {
+            console.error('下载源码 ZIP 失败:', e2.message);
+            zip.addFile('ERROR_源码下载失败.txt', Buffer.from('无法从 GitHub 自动下载源码，这可能是因为仓库不存在 main/master 分支，或者体积过大。请手动下载源码放在本目录下。', 'utf-8'));
+          }
+        }
+      }
+    } else {
+      // 纯脚本包，生成一个一键 clone 的脚本作为辅助
+      if (repoUrl) {
+        const cloneBat = `@echo off\nchcp 65001 >nul\necho 正在为您拉取最新源码...\ngit clone ${repoUrl}.git\necho 源码拉取完成！\npause`;
+        zip.addFile('0.第一步拉取源码.bat', Buffer.from(cloneBat, 'utf-8'));
+      }
+    }
+    
+    const zipBuffer = zip.toBuffer();
+    const safeName = (repoName || 'project').replace(/[^\w\u4e00-\u9fa5-]/g, '_');
+    const filename = type === 'full' ? `${safeName}-免安装绿色版.zip` : `${safeName}-纯脚本轻量包.zip`;
+    const encodedFilename = encodeURIComponent(filename);
+
+    res.set('Content-Type', 'application/zip');
+    res.set('Content-Disposition', `attachment; filename*=UTF-8''${encodedFilename}`);
+    res.send(zipBuffer);
+    
+  } catch (error) {
+    console.error('打包生成 ZIP 失败:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 app.post('/api/xhs/search', async (req, res) => {
   try {
     const { keyword } = req.body;
