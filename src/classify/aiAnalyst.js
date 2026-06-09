@@ -558,8 +558,18 @@ cd /d "%~dp0"
 @echo off
 chcp 65001 >nul
 cd /d "%~dp0"
-echo 正在启动应用...
-call npm start
+echo 正在检测 Node.js 环境...
+where node >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    echo [错误] 未检测到 Node.js，请手动安装 Node.js 20+ 版本。
+    echo 下载地址: https://nodejs.org/
+    pause
+    exit /b 1
+)
+echo [成功] Node.js 环境正常！
+echo 正在安装项目依赖...
+call npm install
+echo 依赖安装完成！
 pause
 \`\`\`
 
