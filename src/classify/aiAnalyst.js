@@ -548,6 +548,10 @@ cd /d "%~dp0"
 除非你在项目文件树里明确看到了 .exe，否则绝对不能在运行脚本里写 \`if not exist "xxx.exe"\`。对于 Node.js / React / Vue 项目，应该使用 \`npm install\` 和 \`npm run dev\` 或 \`npm start\`；对于 Python 项目，应该使用 \`python app.py\`。
 5. **严禁在 .bat 中自动下载安装基础环境！**
 如果检测到缺少 Node.js、Python、Rust 等基础环境，请只使用 \`echo\` 给出官方下载链接，并 \`pause\` 提示用户手动安装。**绝对不要**尝试用 \`curl\` 去自动下载安装程序（你极易混淆 Linux shell 脚本和 Windows exe，比如把 sh.rustup.rs 保存为 exe 导致报错，或者使用 CMD 不支持的单引号）。把下载安装的任务交还给用户！
+6. **严禁在 echo 文本中使用任何小括号 ()！**
+在 \`if\` 等语句块内，输出文本中的 \`)\` 会被 CMD 错误解析为代码块结束（如 \`echo (推荐版本)\` 会导致语法崩溃崩溃）！所有提示信息必须用 \`[]\` 或 \`-\` 代替小括号。
+7. **环境安装脚本必须包含真正的包安装命令！**
+在检测完基础环境后，\`envSetupBat\` 必须执行具体的依赖安装命令，例如 Node.js 项目最后必须有 \`call npm install\`，Python 必须有 \`pip install -r requirements.txt\`，绝对不能只检测环境不安装依赖就 pause 退出！
 
 【完美范例】
 \`\`\`bat
