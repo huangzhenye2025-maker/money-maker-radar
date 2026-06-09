@@ -309,10 +309,7 @@
         </h4>
         <div style="display:flex;gap:12px;align-items:center; flex-wrap: wrap;">
           <button id="btn-download-full-zip" class="btn-action" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);" onclick="downloadZipPackage('full')">
-            <i data-lucide="download"></i> 下载完整源码整合包 (.zip)
-          </button>
-          <button id="btn-download-script-zip" class="btn-action" style="background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.2); padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: background 0.2s;" onclick="downloadZipPackage('script')">
-            <i data-lucide="file-code"></i> 仅下载轻量脚本包 (.zip)
+            <i data-lucide="download"></i> 下载完整源码包及环境脚本 (.zip)
           </button>
           
           <div style="width: 1px; height: 36px; background: rgba(255,255,255,0.1); margin: 0 4px;"></div>

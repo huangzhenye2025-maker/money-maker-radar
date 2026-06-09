@@ -609,7 +609,20 @@ ${fileTreeSummary}
       console.log('【打包助手】正在使用 DeepSeek 生成打包套件...');
       const pkgDsResp = await this.generateDeepseekContent(prompt, true);
       const pkgCleanTxt = pkgDsResp.trim().replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/i, '');
-      const kit = JSON.parse(pkgCleanTxt.trim());
+      let kit = JSON.parse(pkgCleanTxt.trim());
+      
+      // 后处理防御：强制修复大模型可能生成的"裸文本下载链接"或"裸文字"导致 CMD 崩溃的问题
+      const fixBatScript = (script) => {
+        if (!script) return script;
+        let fixed = script.replace(/\n\s*下载地址:/g, '\n    echo 下载地址:');
+        fixed = fixed.replace(/\n\s*安装命令:/g, '\n    echo 安装命令:');
+        fixed = fixed.replace(/\n\s*错误：/g, '\n    echo [错误] ');
+        fixed = fixed.replace(/\n\s*未检测到/g, '\n    echo 未检测到');
+        return fixed;
+      };
+      
+      kit.startupBat = fixBatScript(kit.startupBat);
+      kit.envSetupBat = fixBatScript(kit.envSetupBat);
       console.log(`DeepSeek 打包套件生成成功，难度: ${kit.packagingDifficulty}`);
       return kit;
 
