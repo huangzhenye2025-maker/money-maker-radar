@@ -285,7 +285,7 @@
         const response = await fetch('/api/xhs/extract-painpoints', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ keyword: document.getElementById('xhs-keyword-input').value, data: currentXhsData.items.slice(0, 50) })
+          body: JSON.stringify({ keyword: document.getElementById('xhs-keyword-input').value, data: currentXhsData.items.slice(0, 50), repoId: state.targetSelectRepoId })
         });
         const result = await response.json();
         

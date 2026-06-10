@@ -158,6 +158,9 @@ app.post('/api/repositories/:id/package-kit', async (req, res) => {
     console.log(`【打包助手】开始为 ${repo.name} 生成打包套件...`);
     const kit = await aiAnalyst.generatePackageKit(repo);
 
+    // 将生成的打包套件持久化保存到数据库
+    await db.updatePackageKitData(parseInt(id), kit);
+
     res.json({
       success: true,
       data: kit
@@ -323,12 +326,18 @@ app.post('/api/xhs/search', async (req, res) => {
 // 4.36.1 AI 提炼痛点
 app.post('/api/xhs/extract-painpoints', async (req, res) => {
   try {
-    const { keyword, data } = req.body;
+    const { keyword, data, repoId } = req.body;
     if (!keyword || !data || data.length === 0) {
       return res.status(400).json({ success: false, message: '缺少痛点提取所需数据' });
     }
     const aiAnalyst = require('./classify/aiAnalyst');
     const painPoints = await aiAnalyst.extractPainPoints(keyword, data);
+
+    // 持久化保存到数据库
+    if (repoId) {
+      await db.updateRedfoxData(parseInt(repoId), painPoints);
+    }
+
     res.json({ success: true, painPoints });
   } catch (error) {
     console.error('痛点提炼失败:', error);

@@ -89,7 +89,9 @@ class Database {
         'ALTER TABLE social_analyses ADD COLUMN structured_data TEXT;',
         'ALTER TABLE social_trends ADD COLUMN domestic_score INTEGER DEFAULT -1;',
         'ALTER TABLE social_trends ADD COLUMN info_gap INTEGER DEFAULT 0;',
-        'ALTER TABLE social_trends ADD COLUMN xhs_copy TEXT;'
+        'ALTER TABLE social_trends ADD COLUMN xhs_copy TEXT;',
+        'ALTER TABLE repositories ADD COLUMN package_kit_data TEXT;',
+        'ALTER TABLE repositories ADD COLUMN redfox_data TEXT;'
       ];
 
       let completed = 0;
@@ -287,10 +289,26 @@ class Database {
         };
       }
 
+      let parsedPackageKit = null;
+      try {
+        parsedPackageKit = row.package_kit_data ? JSON.parse(row.package_kit_data) : null;
+      } catch (e) {
+        parsedPackageKit = null;
+      }
+
+      let parsedRedfoxData = null;
+      try {
+        parsedRedfoxData = row.redfox_data ? JSON.parse(row.redfox_data) : null;
+      } catch (e) {
+        parsedRedfoxData = null;
+      }
+
       return {
         ...row,
         tags: parsedTags,
-        ai_report: parsedReport
+        ai_report: parsedReport,
+        packageKitData: parsedPackageKit,
+        redfoxData: parsedRedfoxData
       };
     });
   }
@@ -440,6 +458,30 @@ class Database {
         } else {
           resolve(this.changes);
         }
+      });
+    });
+  }
+
+  // 更新打包套件持久化数据
+  async updatePackageKitData(id, packageKitData) {
+    return new Promise((resolve, reject) => {
+      const sql = 'UPDATE repositories SET package_kit_data = ? WHERE id = ?';
+      const dataStr = packageKitData ? JSON.stringify(packageKitData) : null;
+      this.db.run(sql, [dataStr, id], function(err) {
+        if (err) reject(err);
+        else resolve(this.changes);
+      });
+    });
+  }
+
+  // 更新小红书/闲鱼变现文案数据
+  async updateRedfoxData(id, redfoxData) {
+    return new Promise((resolve, reject) => {
+      const sql = 'UPDATE repositories SET redfox_data = ? WHERE id = ?';
+      const dataStr = redfoxData ? JSON.stringify(redfoxData) : null;
+      this.db.run(sql, [dataStr, id], function(err) {
+        if (err) reject(err);
+        else resolve(this.changes);
       });
     });
   }
