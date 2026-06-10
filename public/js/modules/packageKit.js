@@ -127,6 +127,62 @@
         if (inlineBtn) inlineBtn.classList.remove('hidden');
       }
     }
+
+    // 智能探测官方 Release 发行版
+    const officialReleasesDiv = document.getElementById('drawer-official-releases');
+    if (officialReleasesDiv) {
+      officialReleasesDiv.style.display = '';
+      officialReleasesDiv.innerHTML = `
+        <div class="package-kit-header">
+          <div class="package-kit-title">
+            <i data-lucide="search" class="glow-icon" style="color: #3b82f6;"></i>
+            <h3 style="color: #3b82f6;">正在探测官方成品安装包...</h3>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+
+      fetch('/api/github/releases', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ repoUrl: repo.url })
+      })
+      .then(res => res.json())
+      .then(result => {
+        if (result.success && result.data && result.data.assets && result.data.assets.length > 0) {
+          const assetsHtml = result.data.assets.map(a => `
+            <a href="${a.downloadUrl}" target="_blank" class="btn-action" style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; text-decoration: none; display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.9rem; transition: all 0.2s;">
+              <span style="display:flex; align-items:center; gap:0.5rem"><i data-lucide="download-cloud" style="width:18px;height:18px"></i> ${a.name}</span>
+              <span style="opacity:0.7; font-size:0.8rem">${a.size}</span>
+            </a>
+          `).join('');
+
+          officialReleasesDiv.innerHTML = `
+            <div class="package-kit-header" style="margin-bottom: 1rem;">
+              <div class="package-kit-title">
+                <i data-lucide="check-circle" class="glow-icon" style="color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);"></i>
+                <h3 style="color: #10b981;">🎉 官方自带免安装成品包！</h3>
+              </div>
+            </div>
+            <div style="background: rgba(16, 185, 129, 0.05); padding: 1.25rem; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px;">
+              <p style="font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-top: 0; margin-bottom: 1rem; line-height: 1.5;">
+                太棒了！该开源项目的作者已经提供了编译好的可执行程序，无需折腾源码环境，推荐直接下载官方原版体验：
+              </p>
+              <div class="assets-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                ${assetsHtml}
+              </div>
+            </div>
+          `;
+        } else {
+          officialReleasesDiv.style.display = 'none';
+        }
+        lucide.createIcons();
+      })
+      .catch(err => {
+        console.error('探测 Release 失败:', err);
+        officialReleasesDiv.style.display = 'none';
+      });
+    }
   }
 
   // 抽屉内部收藏按钮绑定

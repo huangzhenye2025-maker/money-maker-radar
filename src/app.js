@@ -246,6 +246,65 @@ app.post('/api/download-package', async (req, res) => {
   }
 });
 
+// 2.7 获取 GitHub 官方 Release 成品安装包
+app.post('/api/github/releases', async (req, res) => {
+  try {
+    const { repoUrl } = req.body;
+    if (!repoUrl || !repoUrl.includes('github.com/')) {
+      return res.json({ success: false, message: '无效的 GitHub 仓库地址' });
+    }
+    
+    const parts = repoUrl.split('github.com/');
+    const ownerRepo = parts[parts.length - 1].replace(/\/$/, '');
+    
+    const axios = require('axios');
+    const headers = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      'Accept': 'application/vnd.github.v3+json'
+    };
+    if (process.env.GITHUB_TOKEN) {
+      headers['Authorization'] = `token ${process.env.GITHUB_TOKEN}`;
+    }
+
+    // 获取 Latest Release
+    const apiUrl = `https://api.github.com/repos/${ownerRepo}/releases/latest`;
+    const response = await axios.get(apiUrl, { headers, timeout: 15000 });
+    
+    if (response.data && response.data.assets && response.data.assets.length > 0) {
+      // 过滤出可安装的文件 (排除 .tar.gz, .zip 源码包，只保留 exe, apk, dmg, AppImage 等，或者是明确的归档程序包)
+      const validAssets = response.data.assets.filter(a => {
+        const name = a.name.toLowerCase();
+        return name.endsWith('.exe') || name.endsWith('.apk') || name.endsWith('.dmg') || 
+               name.endsWith('.appimage') || name.endsWith('.msi') || name.endsWith('.deb') ||
+               name.endsWith('.rpm') || (name.endsWith('.zip') && !name.includes('source'));
+      });
+      
+      return res.json({
+        success: true,
+        data: {
+          tagName: response.data.tag_name,
+          releaseName: response.data.name,
+          htmlUrl: response.data.html_url,
+          assets: validAssets.map(a => ({
+            name: a.name,
+            downloadUrl: a.browser_download_url,
+            size: (a.size / 1024 / 1024).toFixed(2) + ' MB'
+          }))
+        }
+      });
+    }
+    
+    res.json({ success: true, data: null, message: '没有找到可执行的 Release 文件' });
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      // 404 意味着该仓库没有任何 Release
+      return res.json({ success: true, data: null, message: '该项目未发布官方 Release' });
+    }
+    console.error('获取 GitHub Release 失败:', error.message);
+    res.json({ success: false, message: error.message });
+  }
+});
+
 app.post('/api/xhs/search', async (req, res) => {
   try {
     const { keyword } = req.body;
